@@ -104,7 +104,7 @@ bool ofxTCPServer::sendToAll(string message){
 	for(it=TCPConnections.begin(); it!=TCPConnections.end(); it++){
 	    int err = 0;
 		if(it->second.isConnected()) err = it->second.send(message);
-		if(!TCPConnections[it->first].isConnected()) disconnect.push_back(it->first);
+		if(!TCPConnections[it->first].isConnected() && it->first < TCPConnections.size()-1) disconnect.push_back(it->first);
 	}
 	for(int i=0; i<(int)disconnect.size(); i++){
     	TCPConnections.erase(disconnect[i]);
@@ -118,7 +118,7 @@ string ofxTCPServer::receive(int clientID){
 		if(verbose)printf("ofxTCPServer: client %i doesn't exist\n", clientID);
 		return "client doesn't exist";
 	}
-	
+
 	if( !TCPConnections[clientID].isConnected() ){
 		disconnectClient(clientID);
 		return "";
@@ -222,12 +222,12 @@ bool ofxTCPServer::isClientConnected(int clientID){
 void ofxTCPServer::threadedFunction(){
 
 	while( isThreadRunning() ){
-		
+
 		int acceptId;
 		for(acceptId = 0; acceptId <= idCount; acceptId++){
 			if(!isClientConnected(acceptId)) break;
 		}
-		
+
 		if(acceptId == TCP_MAX_CLIENTS){
 			if(verbose)printf("ofxTCPServer: reached max connected clients! \nofxTCPServer: no more connections accepted\n");
 			break;
@@ -236,7 +236,7 @@ void ofxTCPServer::threadedFunction(){
 		if( !TCPServer.Listen(TCP_MAX_CLIENTS) ){
 			if(verbose)printf("ofxTCPServer: Listen() failed\n");
 		}
-		
+
 		if( !TCPServer.Accept(TCPConnections[acceptId].TCPClient) ){
 			if(verbose)printf("ofxTCPServer: Accept() failed\n");
 		}else{
