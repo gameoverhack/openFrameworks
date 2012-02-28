@@ -92,10 +92,6 @@ OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
 
 	ofQuickTimePlayer * ofvp = (ofQuickTimePlayer *)refCon;
 
-	#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height, ofvp->internalPixelFormat);
-	#endif
-
 	ofvp->bHavePixelsChanged = true;
 	return noErr;
 }
@@ -343,10 +339,6 @@ bool ofQuickTimePlayer::loadMovie(string name){
 		SetMovieActiveSegment(moviePtr, -1,-1);
 		MoviesTask(moviePtr,0);
 
-		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, internalPixelFormat);
-		#endif
-
 		bStarted 				= false;
 		bLoaded 				= true;
 		bPlaying 				= false;
@@ -383,9 +375,6 @@ void ofQuickTimePlayer::start(){
 
 		// get some pixels in there right away:
 		MoviesTask(moviePtr,0);
-		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, internalPixelFormat);
-		#endif
 		bHavePixelsChanged = true;
 
 		bStarted = true;
@@ -828,5 +817,3 @@ bool ofQuickTimePlayer::isPlaying(){
 }
 
 #endif
-
-
