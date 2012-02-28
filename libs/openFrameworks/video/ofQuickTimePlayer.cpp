@@ -132,7 +132,7 @@ ofQuickTimePlayer::~ofQuickTimePlayer(){
 
 	closeMovie();
     clearMemory();
-    
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -162,9 +162,9 @@ void ofQuickTimePlayer::update(){
 		//--------------------------------------------------------------
 		#ifdef OF_VIDEO_PLAYER_QUICKTIME
 		//--------------------------------------------------------------
-			
+
 			// is this necessary on windows with quicktime?
-			#ifdef TARGET_OSX 
+			#ifdef TARGET_OSX
 				// call MoviesTask if we're not on the main thread
 				if ( CFRunLoopGetCurrent() != CFRunLoopGetMain() )
 				{
@@ -189,7 +189,7 @@ void ofQuickTimePlayer::update(){
 	// 		and it was badly named so now, newness happens
 	// 		per-idle not per isNew call
 	// ---------------------------------------------------
-	
+
 	if (bLoaded == true){
 
 		bIsFrameNew = bHavePixelsChanged;
@@ -223,7 +223,7 @@ void ofQuickTimePlayer::closeMovie(){
 		DisposeMovieDrawingCompleteUPP(myDrawCompleteProc);
 
 		moviePtr = NULL;
-        
+
     }
 
    	//--------------------------------------
@@ -244,7 +244,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 	movieRect.left 			= 0;
 	movieRect.bottom 		= height;
 	movieRect.right 		= width;
-    
+
     switch(internalPixelFormat){
         case OF_PIXELS_RGB:
             offscreenGWorldPixels = new unsigned char[3 * width * height + 24];
@@ -257,7 +257,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             QTNewGWorldFromPtr (&(offscreenGWorld), k32RGBAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
             break;
     }
-    
+
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
 	SetGWorld (offscreenGWorld, NULL);
 	SetMovieGWorld (moviePtr, offscreenGWorld, nil);
@@ -406,7 +406,7 @@ void ofQuickTimePlayer::play(){
 
 	bPlaying = true;
 	bPaused = false;
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -422,7 +422,7 @@ void ofQuickTimePlayer::play(){
 		SetMovieRate(moviePtr,  X2Fix(speed));
 		MoviesTask(moviePtr, 0);
 	}
-	
+
 	//--------------------------------------
 	#endif
 	//--------------------------------------
@@ -438,7 +438,7 @@ void ofQuickTimePlayer::stop(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -460,7 +460,7 @@ void ofQuickTimePlayer::setVolume(int volume){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -475,11 +475,11 @@ void ofQuickTimePlayer::setVolume(int volume){
 
 //--------------------------------------------------------
 void ofQuickTimePlayer::setLoopState(ofLoopType state){
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
-		
+
 		if( isLoaded() ){
 
 			TimeBase myTimeBase;
@@ -508,7 +508,7 @@ void ofQuickTimePlayer::setLoopState(ofLoopType state){
 					break;
 			}
 			SetTimeBaseFlags(myTimeBase, myFlags);
-			
+
 		}
 
 	//--------------------------------------
@@ -550,7 +550,7 @@ void ofQuickTimePlayer::setFrame(int frame){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -592,7 +592,7 @@ float ofQuickTimePlayer::getDuration(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return 0.0;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -611,7 +611,7 @@ float ofQuickTimePlayer::getPosition(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return 0.0;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -633,7 +633,7 @@ int ofQuickTimePlayer::getCurrentFrame(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return 0;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -663,11 +663,11 @@ bool ofQuickTimePlayer::getIsMovieDone(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return false;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
-		
+
 		bool bIsMovieDone = (bool)IsMovieDone(moviePtr);
 		return bIsMovieDone;
 
@@ -682,13 +682,13 @@ void ofQuickTimePlayer::firstFrame(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
-	
+
 	setFrame(0);
-		
+
 	//--------------------------------------
 	#endif
 	//--------------------------------------
@@ -700,13 +700,13 @@ void ofQuickTimePlayer::nextFrame(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
-	
+
 	setFrame(getCurrentFrame() + 1);
-	
+
 	//--------------------------------------
 	#endif
 	//--------------------------------------
@@ -718,13 +718,13 @@ void ofQuickTimePlayer::previousFrame(){
 		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
 		return;
 	}
-	
+
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
-	
+
 	setFrame(getCurrentFrame() - 1);
-	
+
 	//--------------------------------------
 	#endif
 	//--------------------------------------
@@ -766,7 +766,7 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 			if (bPaused == true) 	SetMovieRate(moviePtr, X2Fix(0));
 			else 					SetMovieRate(moviePtr, X2Fix(speed));
 		}
-	
+
 	//--------------------------------------
 	#endif
 	//--------------------------------------
@@ -774,7 +774,7 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 
 //--------------------------------------------------------------------
 void ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
-    if(pixelFormat != OF_PIXELS_RGB || pixelFormat != OF_PIXELS_RGBA){
+    if(pixelFormat != OF_PIXELS_RGB && pixelFormat != OF_PIXELS_RGBA){
         ofLogError() << "Pixel format not supported! Defaulting to OF_PIXELS_RGB";
         internalPixelFormat = OF_PIXELS_RGB;
     }else{
