@@ -86,7 +86,6 @@ bool createMovieFromURL(string urlIn,  Movie &movie){
 	return false;
 }
 
-
 //--------------------------------------------------------------
 OSErr 	DrawCompleteProc(Movie theMovie, long refCon);
 OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
@@ -104,7 +103,6 @@ OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
 //--------------------------------------------------------------
 #endif
 //--------------------------------------------------------------
-
 
 //---------------------------------------------------------------------------
 ofQuickTimePlayer::ofQuickTimePlayer (){
@@ -128,7 +126,6 @@ ofQuickTimePlayer::ofQuickTimePlayer (){
 	bPaused						= true;
 	currentLoopState			= OF_LOOP_NORMAL;
 }
-
 
 //---------------------------------------------------------------------------
 ofQuickTimePlayer::~ofQuickTimePlayer(){
@@ -207,6 +204,7 @@ void ofQuickTimePlayer::update(){
 bool ofQuickTimePlayer::isFrameNew(){
 	return bIsFrameNew;
 }
+
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::close(){
 	closeMovie();
@@ -236,7 +234,6 @@ void ofQuickTimePlayer::closeMovie(){
 
 }
 
-
 //--------------------------------------
 #ifdef OF_VIDEO_PLAYER_QUICKTIME
 //--------------------------------------
@@ -265,7 +262,6 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 //--------------------------------------
 #endif
 //--------------------------------------
-
 
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::loadMovie(string name){
@@ -364,8 +360,6 @@ bool ofQuickTimePlayer::loadMovie(string name){
 
 
 }
-
-
 
 //--------------------------------------------------------
 void ofQuickTimePlayer::start(){
@@ -479,7 +473,6 @@ void ofQuickTimePlayer::setVolume(int volume){
 
 }
 
-
 //--------------------------------------------------------
 void ofQuickTimePlayer::setLoopState(ofLoopType state){
 	
@@ -526,7 +519,6 @@ void ofQuickTimePlayer::setLoopState(ofLoopType state){
 	currentLoopState = state;
 
 }
-
 
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::setPosition(float pct){
@@ -594,7 +586,6 @@ void ofQuickTimePlayer::setFrame(int frame){
    //--------------------------------------
 
 }
-
 
 //---------------------------------------------------------------------------
 float ofQuickTimePlayer::getDuration(){
@@ -668,7 +659,6 @@ int ofQuickTimePlayer::getCurrentFrame(){
 	//--------------------------------------
 
 }
-
 
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::getIsMovieDone(){
@@ -745,8 +735,6 @@ void ofQuickTimePlayer::previousFrame(){
 	//--------------------------------------
 }
 
-
-
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::setSpeed(float _speed){
 
@@ -789,14 +777,6 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 	//--------------------------------------
 
 }
-
-
-
-
-
-
-
-
 
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::clearMemory(){
