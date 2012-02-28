@@ -47,19 +47,16 @@ void closeQuicktime(){
 
 
 //----------------------------------------
-void convertPixels(unsigned char * gWorldPixels, unsigned char * rgbPixels, int w, int h){
+void convertPixels(unsigned char * gWorldPixels, unsigned char * pixels, int w, int h, ofPixelFormat pixelFormat){
 
-	// ok for macs?
-	// ok for intel macs?
-
-	int * rgbaPtr 			= (int *) gWorldPixels;
-	pix24 * rgbPtr 			= (pix24 *) rgbPixels;
-		unsigned char * rgbaStart;
-
+	int * rgbaGWorldPtr = (int *) gWorldPixels;
+    
+    unsigned char * rgbaStart;
+    
 	//	putting in the boolean, so we can work on
 	//	0,0 in top right...
 	//	bool bFlipVertically 	= true;
-
+    
 	bool bFlipVertically 	= false;
 	
 	// -------------------------------------------
@@ -69,30 +66,67 @@ void convertPixels(unsigned char * gWorldPixels, unsigned char * rgbPixels, int 
 	// if we upload and drawf the data as is
 	// it will be upside-down....
 	// -------------------------------------------
+    
+    switch(pixelFormat){
+        case OF_PIXELS_RGB:
+        {
+            pix24 * rgbOFPtr = (pix24 *) pixels;
+            if (!bFlipVertically){
+                //----- argb->rgb
+                for (int i = 0; i < h; i++){
+                    pix24 * rgbOFPtr = (pix24 *) pixels + ((i) * w);
+                    for (int j = 0; j < w; j++){
+                        rgbaStart = (unsigned char *)rgbaGWorldPtr;
+                        memcpy (rgbOFPtr, rgbaStart+1, sizeof(pix24));
+                        rgbOFPtr++;
+                        rgbaGWorldPtr++;
+                    }
+                }
+            } else {
+                //----- flip while argb->rgb
+                for (int i = 0; i < h; i++){
+                    pix24 * rgbOFPtr = (pix24 *) pixels + ((h-i-1) * w);
+                    for (int j = 0; j < w; j++){
+                        rgbaStart = (unsigned char *)rgbaGWorldPtr;
+                        memcpy (rgbOFPtr, rgbaStart+1, sizeof(pix24));
+                        rgbOFPtr++;
+                        rgbaGWorldPtr++;
+                    }
+                }
+            }
+            break;
 
-	if (!bFlipVertically){
-		//----- argb->rgb
-		for (int i = 0; i < h; i++){
-			pix24 * rgbPtr 			= (pix24 *) rgbPixels + ((i) * w);
-			for (int j = 0; j < w; j++){
-				rgbaStart = (unsigned char *)rgbaPtr;
-				memcpy (rgbPtr, rgbaStart+1, sizeof(pix24));
-				rgbPtr++;
-				rgbaPtr++;
-			}
-		}
-	} else {
-		//----- flip while argb->rgb
-		for (int i = 0; i < h; i++){
-			pix24 * rgbPtr 			= (pix24 *) rgbPixels + ((h-i-1) * w);
-			for (int j = 0; j < w; j++){
-				rgbaStart = (unsigned char *)rgbaPtr;
-				memcpy (rgbPtr, rgbaStart+1, sizeof(pix24));
-				rgbPtr++;
-				rgbaPtr++;
-			}
-		}
-	}
+        }
+        case OF_PIXELS_RGBA:
+        {
+            pix32 * rgbaOFPtr = (pix32 *) pixels;
+            if (!bFlipVertically){
+                //----- argb->rgb
+                for (int i = 0; i < h; i++){
+                    pix32 * rgbaOFPtr = (pix32 *) pixels + ((i) * w);
+                    for (int j = 0; j < w; j++){
+                        rgbaStart = (unsigned char *)rgbaGWorldPtr;
+                        memcpy (rgbaOFPtr, rgbaStart+1, sizeof(pix32));
+                        rgbaOFPtr++;
+                        rgbaGWorldPtr++;
+                    }
+                }
+            } else {
+                //----- flip while argb->rgb
+                for (int i = 0; i < h; i++){
+                    pix32 * rgbaOFPtr = (pix32 *) pixels + ((h-i-1) * w);
+                    for (int j = 0; j < w; j++){
+                        rgbaStart = (unsigned char *)rgbaGWorldPtr;
+                        memcpy (rgbaOFPtr, rgbaStart+1, sizeof(pix32));
+                        rgbaOFPtr++;
+                        rgbaGWorldPtr++;
+                    }
+                }
+            }
+            break;
+        }
+    }
+	
 }
 
 

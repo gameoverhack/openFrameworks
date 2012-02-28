@@ -93,7 +93,7 @@ OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
 	ofQuickTimePlayer * ofvp = (ofQuickTimePlayer *)refCon;
 
 	#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height);
+		convertPixels(ofvp->offscreenGWorldPixels, ofvp->pixels.getPixels(), ofvp->width, ofvp->height, ofvp->internalPixelFormat);
 	#endif
 
 	ofvp->bHavePixelsChanged = true;
@@ -244,15 +244,20 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 	movieRect.left 			= 0;
 	movieRect.bottom 		= height;
 	movieRect.right 		= width;
-	offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
-	pixels.allocate(width,height,OF_IMAGE_COLOR);
-
-	#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-		QTNewGWorldFromPtr (&(offscreenGWorld), k32ARGBPixelFormat, &(movieRect), NULL, NULL, 0, (offscreenGWorldPixels), 4 * width);		
-	#else
-		QTNewGWorldFromPtr (&(offscreenGWorld), k24RGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
-	#endif
-
+    
+    switch(internalPixelFormat){
+        case OF_PIXELS_RGB:
+            offscreenGWorldPixels = new unsigned char[3 * width * height + 24];
+            pixels.allocate(width, height, OF_IMAGE_COLOR);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k24RGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
+            break;
+        case OF_PIXELS_RGBA:
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k32RGBAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+            break;
+    }
+    
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
 	SetGWorld (offscreenGWorld, NULL);
 	SetMovieGWorld (moviePtr, offscreenGWorld, nil);
@@ -333,16 +338,13 @@ bool ofQuickTimePlayer::loadMovie(string name){
 		}
 		nFrames--; // there's an extra time step at the end of themovie
 
-
-
-
 		// ------------- get some pixels in there ------
 		GoToBeginningOfMovie(moviePtr);
 		SetMovieActiveSegment(moviePtr, -1,-1);
 		MoviesTask(moviePtr,0);
 
 		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, internalPixelFormat);
 		#endif
 
 		bStarted 				= false;
@@ -356,8 +358,6 @@ bool ofQuickTimePlayer::loadMovie(string name){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
-
-
 
 }
 
@@ -384,7 +384,7 @@ void ofQuickTimePlayer::start(){
 		// get some pixels in there right away:
 		MoviesTask(moviePtr,0);
 		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
+			convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height, internalPixelFormat);
 		#endif
 		bHavePixelsChanged = true;
 
@@ -542,7 +542,6 @@ void ofQuickTimePlayer::setPosition(float pct){
 	#endif
 	//--------------------------------------
 
-
 }
 
 //---------------------------------------------------------------------------
@@ -626,7 +625,6 @@ float ofQuickTimePlayer::getPosition(){
 	#endif
 	//--------------------------------------
 
-
 }
 
 //---------------------------------------------------------------------------
@@ -657,7 +655,6 @@ int ofQuickTimePlayer::getCurrentFrame(){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
-
 }
 
 //---------------------------------------------------------------------------
@@ -677,7 +674,6 @@ bool ofQuickTimePlayer::getIsMovieDone(){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
-
 }
 
 //---------------------------------------------------------------------------
@@ -696,7 +692,6 @@ void ofQuickTimePlayer::firstFrame(){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
-
 }
 
 //---------------------------------------------------------------------------
@@ -775,14 +770,26 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
+}
 
+//--------------------------------------------------------------------
+void ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
+    if(pixelFormat != OF_PIXELS_RGB || pixelFormat != OF_PIXELS_RGBA){
+        ofLogError() << "Pixel format not supported! Defaulting to OF_PIXELS_RGB";
+        internalPixelFormat = OF_PIXELS_RGB;
+    }else{
+        internalPixelFormat = pixelFormat;
+    }
+}
+
+//--------------------------------------------------------------------
+ofPixelFormat ofQuickTimePlayer::getPixelFormat(){
+	return internalPixelFormat;
 }
 
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::clearMemory(){
-
 	pixels.clear();
-
 }
 
 //---------------------------------------------------------------------------
