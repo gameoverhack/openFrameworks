@@ -152,6 +152,8 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
     case OF_PIXELS_RGB565:
 #ifdef TARGET_OPENGLES 
     	return GL_RGB;
+#elseif TARGET_ANDROID
+        return GL_RGB565_OES;
 #else
         return GL_RGB5;
 #endif

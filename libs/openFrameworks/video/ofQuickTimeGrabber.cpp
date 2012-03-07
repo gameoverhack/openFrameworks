@@ -110,17 +110,61 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 		//---------------------------------- 3 - buffer allocation
         switch(internalPixelFormat){
+            case OF_PIXELS_MONO:
+            {
+                offscreenGWorldPixels = new unsigned char[1 * w * h + 8];
+                pixels.allocate(w, h, OF_IMAGE_GRAYSCALE);
+                // For k8IndexedGrayPixelFormat quicktime uses a reversed black and white color table ie., black for white, and 
+                // white for black...rather than reverse every frame after decompression we can provide a custom color table
+                // thanks to the unwieldy and ancient: http://www.cs.cmu.edu/afs/cs/project/cmcl/link.iwarp/member/OldFiles/tomstr/Mac2/Michigan/mac.bin/hypercard/xcmd/TIFFWindow%20:c4/tiffinfo.c
+                CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);//GetCTable(40);// gray clut ID = color clut ID +32
+                (*grayCTab)->ctSeed = GetCTSeed();
+                (*grayCTab)->ctFlags = 0;
+                (*grayCTab)->ctSize = 255;
+                RGBColor rgb;
+                // invert the default color table
+                for(int i = 0; i < 256; i++){
+                    rgb.red = rgb.green = rgb.blue = (65535 / (255)) * i;
+                    (*grayCTab)->ctTable[i].value = i; /* this must be filled in... */
+                    (*grayCTab)->ctTable[i].rgb = rgb;
+                }
+                QTNewGWorldFromPtr (&(videogworld), k8IndexedGrayPixelFormat, &(videoRect), grayCTab, NULL, 0, (pixels.getPixels()), 1 * w);
+                DisposeCTable(grayCTab);
+                break;
+            }
             case OF_PIXELS_RGB:
+            {
                 offscreenGWorldPixels = new unsigned char[3 * w * h + 24];
                 pixels.allocate(w, h, OF_IMAGE_COLOR);
                 QTNewGWorldFromPtr (&(videogworld), k24RGBPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
                 break;
+            }
             case OF_PIXELS_RGBA:
+            {
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
                 pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
                 QTNewGWorldFromPtr (&(videogworld), k32RGBAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
                 break;
-        }	
+            }
+            case OF_PIXELS_BGRA:
+            {
+                // NOT SURE IF THIS IS CORRECT ?? 
+                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+            case OF_PIXELS_RGB565:
+            {
+                // NOT SURE IF THIS IS CORRECT ?? 
+                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
+                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
+                pixels.allocate(w, h, OF_IMAGE_COLOR);
+                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+                break;
+            }
+        }
 		
 		LockPixels(GetGWorldPixMap(videogworld));
 		SetGWorld (videogworld, NULL);
@@ -232,12 +276,7 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 //--------------------------------------------------------------------
 void ofQuickTimeGrabber::setPixelFormat(ofPixelFormat pixelFormat){
-    if(pixelFormat != OF_PIXELS_RGB && pixelFormat != OF_PIXELS_RGBA){
-        ofLogError() << "Pixel format not supported! Defaulting to OF_PIXELS_RGB";
-        internalPixelFormat = OF_PIXELS_RGB;
-    }else{
-        internalPixelFormat = pixelFormat;
-    }
+    internalPixelFormat = pixelFormat;
 }
 
 //--------------------------------------------------------------------

@@ -242,16 +242,56 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 	movieRect.right 		= width;
 
     switch(internalPixelFormat){
+        case OF_PIXELS_MONO:
+        {
+            offscreenGWorldPixels = new unsigned char[1 * width * height + 8];
+            pixels.allocate(width, height, OF_IMAGE_GRAYSCALE);
+            // For k8IndexedGrayPixelFormat quicktime uses a reversed black and white color table ie., black for white, and 
+            // white for black...rather than reverse every frame after decompression we can provide a custom color table
+            // thanks to the unwieldy and ancient: http://www.cs.cmu.edu/afs/cs/project/cmcl/link.iwarp/member/OldFiles/tomstr/Mac2/Michigan/mac.bin/hypercard/xcmd/TIFFWindow%20:c4/tiffinfo.c
+            CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);//GetCTable(40);// gray clut ID = color clut ID +32
+            (*grayCTab)->ctSeed = GetCTSeed();
+            (*grayCTab)->ctFlags = 0;
+            (*grayCTab)->ctSize = 255;
+            RGBColor rgb;
+            // invert the default color table
+            for(int i = 0; i < 256; i++){
+                rgb.red = rgb.green = rgb.blue = (65535 / (255)) * i;
+                (*grayCTab)->ctTable[i].value = i; /* this must be filled in... */
+                (*grayCTab)->ctTable[i].rgb = rgb;
+            }
+            QTNewGWorldFromPtr (&(offscreenGWorld), k8IndexedPixelFormat, &(movieRect), grayCTab, NULL, 0, (pixels.getPixels()), 1 * width);
+            DisposeCTable(grayCTab);
+            break;
+        }
         case OF_PIXELS_RGB:
+        {
             offscreenGWorldPixels = new unsigned char[3 * width * height + 24];
             pixels.allocate(width, height, OF_IMAGE_COLOR);
             QTNewGWorldFromPtr (&(offscreenGWorld), k24RGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
             break;
+        }
         case OF_PIXELS_RGBA:
+        {
             offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
             QTNewGWorldFromPtr (&(offscreenGWorld), k32RGBAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
             break;
+        }
+        case OF_PIXELS_BGRA:
+        {
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k32BGRAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+            break;
+        }
+        case OF_PIXELS_RGB565:
+        {
+            offscreenGWorldPixels = new unsigned char[3 * width * height + 16];
+            pixels.allocate(width, height, OF_IMAGE_COLOR);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k16BE565PixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
+            break;
+        }
     }
 
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
@@ -763,12 +803,7 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 
 //--------------------------------------------------------------------
 void ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
-    if(pixelFormat != OF_PIXELS_RGB && pixelFormat != OF_PIXELS_RGBA){
-        ofLogError() << "Pixel format not supported! Defaulting to OF_PIXELS_RGB";
-        internalPixelFormat = OF_PIXELS_RGB;
-    }else{
-        internalPixelFormat = pixelFormat;
-    }
+    internalPixelFormat = pixelFormat;
 }
 
 //--------------------------------------------------------------------
