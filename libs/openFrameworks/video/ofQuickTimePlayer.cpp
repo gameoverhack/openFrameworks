@@ -249,7 +249,9 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             // For k8IndexedGrayPixelFormat quicktime uses a reversed black and white color table ie., black for white, and 
             // white for black...rather than reverse every frame after decompression we can provide a custom color table
             // thanks to the unwieldy and ancient: http://www.cs.cmu.edu/afs/cs/project/cmcl/link.iwarp/member/OldFiles/tomstr/Mac2/Michigan/mac.bin/hypercard/xcmd/TIFFWindow%20:c4/tiffinfo.c
-            CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);//GetCTable(40);// gray clut ID = color clut ID +32
+            
+            // make a new color table
+            CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);
             (*grayCTab)->ctSeed = GetCTSeed();
             (*grayCTab)->ctFlags = 0;
             (*grayCTab)->ctSize = 255;
