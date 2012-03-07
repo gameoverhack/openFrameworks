@@ -73,18 +73,7 @@ bool ofVideoGrabber::initGrabber(int w, int h, bool setUseTexture){
 	height	 = (int)grabber->getHeight();
 
 	if( bOk && bUseTexture ){
-		if(internalPixelFormat == OF_PIXELS_RGB)
-			tex.allocate(width, height, GL_RGB);
-		else if(internalPixelFormat == OF_PIXELS_RGBA)
-			tex.allocate(width, height, GL_RGBA);
-		else if(internalPixelFormat == OF_PIXELS_BGRA)
-			tex.allocate(width, height, GL_RGBA); // for some reason if we allcoate as GL_BGRA we get a white texture
-#ifdef TARGET_ANDROID
-		else if(internalPixelFormat == OF_PIXELS_RGB565)
-			tex.allocate(width, height, GL_RGB565_OES); // for some reason if we allcoate as GL_BGRA we get a white texture
-		else if(internalPixelFormat == OF_PIXELS_MONO)
-			tex.allocate(width, height, GL_LUMINANCE); // for some reason if we allcoate as GL_BGRA we get a white texture
-#endif
+        tex.allocate(width, height, ofGetGLTypeFromPixelFormat(internalPixelFormat));
 	}
 
 	return bOk;
@@ -161,19 +150,7 @@ void ofVideoGrabber::update(){
 	if(	grabber != NULL ){
 		grabber->update();
 		if( bUseTexture && grabber->isFrameNew() ){
-			//note we should look at ways to do other pixel formats.
-			if(internalPixelFormat == OF_PIXELS_RGB)
-				tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), GL_RGB);
-			else if(internalPixelFormat == OF_PIXELS_RGBA)
-				tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), GL_RGBA);
-#ifndef TARGET_ANDROID
-			else if(internalPixelFormat == OF_PIXELS_BGRA)
-				tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), GL_BGRA);
-#else
-			else if(internalPixelFormat == OF_PIXELS_MONO)
-				tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), GL_LUMINANCE);
-#endif
-
+			tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), ofGetGLTypeFromPixelFormat(internalPixelFormat));
 		}
 	}
 }

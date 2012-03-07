@@ -40,6 +40,9 @@ class ofQuickTimeGrabber : public ofBaseVideoGrabber{
 		void					setDeviceID(int _deviceID);
 		void					setDesiredFrameRate(int framerate);
 
+        void                    setPixelFormat(ofPixelFormat pixelFormat);
+        ofPixelFormat           getPixelFormat();
+    
 	protected:
 
 		bool					bChooseDevice;
@@ -70,6 +73,7 @@ class ofQuickTimeGrabber : public ofBaseVideoGrabber{
 		bool					saveSettings();
 		bool					loadSettings();
 		
+        ofPixelFormat           internalPixelFormat;
 
 };
 

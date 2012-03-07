@@ -109,18 +109,64 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 		MacSetRect(&videoRect, 0, 0, w, h);
 
 		//---------------------------------- 3 - buffer allocation
-		// Create a buffer big enough to hold the video data,
-		// make sure the pointer is 32-byte aligned.
-		// also the rgb image that people will grab
-
-		offscreenGWorldPixels 	= (unsigned char*)malloc(4 * w * h + 32);
-		pixels.allocate(w, h, OF_IMAGE_COLOR);
-		
-		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			QTNewGWorldFromPtr (&(videogworld), k32ARGBPixelFormat, &(videoRect), NULL, NULL, 0, (offscreenGWorldPixels), 4 * w);		
-		#else
-			QTNewGWorldFromPtr (&(videogworld), k24RGBPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
-		#endif		
+        switch(internalPixelFormat){
+            case OF_PIXELS_MONO:
+            {
+                offscreenGWorldPixels = new unsigned char[1 * w * h + 8];
+                pixels.allocate(w, h, OF_IMAGE_GRAYSCALE);
+                // For k8IndexedGrayPixelFormat quicktime uses a reversed black and white color table ie., black for white, and 
+                // white for black...rather than reverse every frame after decompression we can provide a custom color table
+                // thanks to the unwieldy and ancient: http://www.cs.cmu.edu/afs/cs/project/cmcl/link.iwarp/member/OldFiles/tomstr/Mac2/Michigan/mac.bin/hypercard/xcmd/TIFFWindow%20:c4/tiffinfo.c
+                
+                // make a new color table
+                CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);
+                (*grayCTab)->ctSeed = GetCTSeed();
+                (*grayCTab)->ctFlags = 0;
+                (*grayCTab)->ctSize = 255;
+                RGBColor rgb;
+                // invert the default color table
+                for(int i = 0; i < 256; i++){
+                    rgb.red = rgb.green = rgb.blue = (65535 / (255)) * i;
+                    (*grayCTab)->ctTable[i].value = i; /* this must be filled in... */
+                    (*grayCTab)->ctTable[i].rgb = rgb;
+                }
+                QTNewGWorldFromPtr (&(videogworld), k8IndexedGrayPixelFormat, &(videoRect), grayCTab, NULL, 0, (pixels.getPixels()), 1 * w);
+                DisposeCTable(grayCTab);
+                break;
+            }
+            case OF_PIXELS_RGB:
+            {
+                offscreenGWorldPixels = new unsigned char[3 * w * h + 24];
+                pixels.allocate(w, h, OF_IMAGE_COLOR);
+                QTNewGWorldFromPtr (&(videogworld), k24RGBPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+                break;
+            }
+            case OF_PIXELS_RGBA:
+            {
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k32RGBAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+            case OF_PIXELS_BGRA:
+            {
+                // NOT SURE IF THIS IS CORRECT ?? 
+                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+            case OF_PIXELS_RGB565:
+            {
+                // NOT SURE IF THIS IS CORRECT ?? 
+                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
+                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
+                pixels.allocate(w, h, OF_IMAGE_COLOR);
+                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+                break;
+            }
+        }
 		
 		LockPixels(GetGWorldPixMap(videogworld));
 		SetGWorld (videogworld, NULL);
@@ -229,6 +275,17 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 }
 
+
+//--------------------------------------------------------------------
+void ofQuickTimeGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+    internalPixelFormat = pixelFormat;
+}
+
+//--------------------------------------------------------------------
+ofPixelFormat ofQuickTimeGrabber::getPixelFormat(){
+	return internalPixelFormat;
+}
+
 //--------------------------------------------------------------------
 void ofQuickTimeGrabber::listDevices(){
 
@@ -335,12 +392,6 @@ void ofQuickTimeGrabber::update(){
 			// was a new frame or not..
 			// or else we will process way more than necessary
 			// (ie opengl is running at 60fps +, capture at 30fps)
-			if (bHavePixelsChanged){
-				
-				#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-					convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
-				#endif
-			}
 		}
 
 		// newness test for quicktime:
