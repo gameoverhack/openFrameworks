@@ -142,7 +142,7 @@ inline ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
 	case OF_PIXELS_BGRA:
-		return GL_RGBA;
+		return GL_BGRA;
 	case OF_PIXELS_MONO:
 		return GL_LUMINANCE;
 	case OF_PIXELS_RGB:
@@ -151,8 +151,6 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 		return GL_RGBA;
     case OF_PIXELS_RGB565:
 #ifdef TARGET_OPENGLES 
-    	return GL_RGB;
-#elseif TARGET_ANDROID
         return GL_RGB565_OES;
 #else
         return GL_RGB5;

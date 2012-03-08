@@ -24,6 +24,7 @@ int ofGetGlFormat(const T& pix) {
 int ofGetGlInternalFormat(const ofPixels& pix) {
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -34,6 +35,7 @@ int ofGetGlInternalFormat(const ofShortPixels& pix) {
 #ifndef TARGET_OPENGLES
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB16;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA16;
 		default: return GL_LUMINANCE16;
 	}
@@ -41,6 +43,7 @@ int ofGetGlInternalFormat(const ofShortPixels& pix) {
 	ofLogWarning()<< "16bit textures not supported in GLES";
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -52,6 +55,7 @@ int ofGetGlInternalFormat(const ofFloatPixels& pix) {
 #ifndef TARGET_OPENGLES
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB32F_ARB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA32F_ARB;
 		default: return GL_LUMINANCE32F_ARB;
 	}
@@ -59,6 +63,7 @@ int ofGetGlInternalFormat(const ofFloatPixels& pix) {
 	ofLogWarning()<< "float textures not supported in GLES";
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -77,6 +82,7 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 #ifndef TARGET_OPENGLES
 		case GL_RGB8: return "GL_RGB8";
 #endif
+        case GL_BGRA: return "GL_BGRA";
 		case GL_LUMINANCE: return "GL_LUMINANCE";
 #ifndef TARGET_OPENGLES
 		case GL_LUMINANCE8: return "GL_LUMINANCE8";
@@ -98,8 +104,7 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 //---------------------------------
 void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 	switch(glInternalFormat) {
-
-			
+            
 		case GL_RGBA:
 #ifndef TARGET_OPENGLES
 		case GL_RGBA8:
@@ -121,7 +126,10 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 			glFormat = GL_LUMINANCE;
 			glType = GL_UNSIGNED_BYTE;
 			break;
-			
+        case GL_BGRA:
+            glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
+            break;
 #ifndef TARGET_OPENGLES
 		// 16-bit unsigned short formats
 		case GL_RGBA16:
@@ -222,6 +230,7 @@ ofImageType ofGetImageTypeFromGLType(int glType){
 		return OF_IMAGE_GRAYSCALE;
 	case GL_RGB:
 		return OF_IMAGE_COLOR;
+    case GL_BGRA:
 	case GL_RGBA:
 		return OF_IMAGE_COLOR_ALPHA;
 	}
@@ -462,16 +471,25 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
 	glEnable(texData.textureTarget);
 	
 	glBindTexture(texData.textureTarget, (GLuint)texData.textureID);
+    
 #ifndef TARGET_OPENGLES
 	// can't do this on OpenGL ES: on full-blown OpenGL, 
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    if(texData.glTypeInternal == GL_BGRA){
+        // annoyingly the correct way to init BGRA texture is with GL_RGBA 
+        // where we've been using texData.glTypeInternal, but we still want 
+        // to use glTypeInternal and glType set to GL_BGRA and pixelType 
+        // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
+        // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else{
+        glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }
 #else
 	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, texData.tex_w, texData.tex_h, 0, texData.glTypeInternal, texData.pixelType, 0);
 #endif
-	
 	
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -513,17 +531,26 @@ void ofTexture::allocate(const ofTextureData & textureData){
 	glEnable(texData.textureTarget);
 
 	glBindTexture(texData.textureTarget, (GLuint)texData.textureID);
+    
 #ifndef TARGET_OPENGLES
-	// can't do this on OpenGL ES: on full-blown OpenGL,
+	// can't do this on OpenGL ES: on full-blown OpenGL, 
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    if(texData.glTypeInternal == GL_BGRA){
+        // annoyingly the correct way to init BGRA texture is with GL_RGBA 
+        // where we've been using texData.glTypeInternal, but we still want 
+        // to use glTypeInternal and glType set to GL_BGRA and pixelType 
+        // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
+        // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else{
+        glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }
 #else
 	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, texData.tex_w, texData.tex_h, 0, texData.glTypeInternal, texData.pixelType, 0);
 #endif
-
-
+    
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
