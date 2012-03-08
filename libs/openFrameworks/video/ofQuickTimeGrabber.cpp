@@ -150,22 +150,18 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
             }
             case OF_PIXELS_BGRA:
             {
-                // NOT SURE IF THIS IS CORRECT ?? 
-                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
                 pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
                 QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
                 break;
             }
-            case OF_PIXELS_RGB565:
-            {
-                // NOT SURE IF THIS IS CORRECT ?? 
-                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
-                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
-                pixels.allocate(w, h, OF_IMAGE_COLOR);
-                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
-                break;
-            }
+//            case OF_PIXELS_RGB565:
+//            {
+//                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
+//                pixels.allocate(w, h, OF_IMAGE_COLOR);
+//                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+//                break;
+//            }
         }
 		
 		LockPixels(GetGWorldPixMap(videogworld));
@@ -278,6 +274,10 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 //--------------------------------------------------------------------
 void ofQuickTimeGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+    if(pixelFormat == OF_PIXELS_RGB565){
+        ofLogWarning() << "Pixel format not yet supported. Defaulting to OF_PIXELS_RGB";
+        pixelFormat = OF_PIXELS_RGB;
+    }
     internalPixelFormat = pixelFormat;
 }
 

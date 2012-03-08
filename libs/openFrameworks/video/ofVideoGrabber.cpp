@@ -80,8 +80,12 @@ bool ofVideoGrabber::initGrabber(int w, int h, bool setUseTexture){
 }
 
 //--------------------------------------------------------------------
-void ofVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat) {
-	internalPixelFormat = pixelFormat;
+void ofVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+    if(grabber != NULL){
+        ofLogError() << "Cannot change pixel format after grabber has been started! Call setPixelFormat before initGrabber";
+    }else{
+        internalPixelFormat = pixelFormat;
+    }
 }
 
 ofPixelFormat ofVideoGrabber::getPixelFormat(){

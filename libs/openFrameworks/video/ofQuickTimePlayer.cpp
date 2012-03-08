@@ -287,13 +287,13 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             QTNewGWorldFromPtr (&(offscreenGWorld), k32BGRAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
             break;
         }
-        case OF_PIXELS_RGB565:
-        {
-            offscreenGWorldPixels = new unsigned char[3 * width * height + 16];
-            pixels.allocate(width, height, OF_IMAGE_COLOR);
-            QTNewGWorldFromPtr (&(offscreenGWorld), k16BE565PixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
-            break;
-        }
+//        case OF_PIXELS_RGB565:
+//        {
+//            offscreenGWorldPixels = new unsigned char[3 * width * height + 16];
+//            pixels.allocate(width, height, OF_IMAGE_COLOR);
+//            QTNewGWorldFromPtr (&(offscreenGWorld), k16BE565PixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 3 * width);
+//            break;
+//        }
     }
 
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
@@ -805,6 +805,10 @@ void ofQuickTimePlayer::setPaused(bool _bPause){
 
 //--------------------------------------------------------------------
 void ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
+    if(pixelFormat == OF_PIXELS_RGB565){
+        ofLogWarning() << "Pixel format not yet supported. Defaulting to OF_PIXELS_RGB";
+        pixelFormat = OF_PIXELS_RGB;
+    }
     internalPixelFormat = pixelFormat;
 }
 
