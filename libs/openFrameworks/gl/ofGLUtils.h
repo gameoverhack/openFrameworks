@@ -141,6 +141,7 @@ inline ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 
 inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
+    case OF_PIXELS_UYVY:
 	case OF_PIXELS_BGRA:
 		return GL_BGRA;
 	case OF_PIXELS_MONO:

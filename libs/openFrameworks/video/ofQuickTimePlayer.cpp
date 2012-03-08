@@ -287,6 +287,13 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             QTNewGWorldFromPtr (&(offscreenGWorld), k32BGRAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
             break;
         }
+        case OF_PIXELS_UYVY:
+        {
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+            break;
+        }
 //        case OF_PIXELS_RGB565:
 //        {
 //            offscreenGWorldPixels = new unsigned char[3 * width * height + 16];
