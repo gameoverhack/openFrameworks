@@ -289,6 +289,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
         }
         case OF_PIXELS_UYVY:
         {
+            width = width/2; // use half width textures and pixels for 2yuv
             offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
             QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
