@@ -451,13 +451,13 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
     
 	//our graphics card might not support arb so we have to see if it is supported.
 #ifndef TARGET_OPENGLES
-	if (bUseARBExtention && GL_ARB_texture_rectangle){
+	if(bUseARBExtention && GL_ARB_texture_rectangle){
 		texData.tex_w = w;
 		texData.tex_h = h;
 		texData.tex_t = w;
 		texData.tex_u = h;
 		texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
-	} else 
+	}else 
 #endif
 	{
 		//otherwise we need to calculate the next power of 2 for the requested dimensions
@@ -608,9 +608,6 @@ void ofTexture::loadData(const ofShortPixels & pix){
 void ofTexture::loadData(const ofFloatPixels & pix){
 	loadData(pix.getPixels(), pix.getWidth(), pix.getHeight(), ofGetGlFormat(pix));
 }
-
-
-
 
 //----------------------------------------------------------
 void ofTexture::loadData(void * data, int w, int h, int glFormat){
