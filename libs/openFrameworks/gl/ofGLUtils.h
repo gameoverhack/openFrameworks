@@ -146,6 +146,7 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
     case OF_PIXELS_ARGB:
         return OF_ARGB;
     case OF_PIXELS_UYVY:
+        return GL_RGB_422_APPLE;
 	case OF_PIXELS_BGRA:
 		return GL_BGRA;
     case OF_PIXELS_ABGR:

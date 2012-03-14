@@ -128,6 +128,10 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 			glFormat = GL_LUMINANCE;
 			glType = GL_UNSIGNED_BYTE;
 			break;
+        case GL_RGB_422_APPLE:
+            glFormat = GL_RGB_422_APPLE;
+			glType = GL_UNSIGNED_SHORT_8_8_APPLE;
+            break;
         case GL_ABGR_EXT:
             glFormat = GL_ABGR_EXT;
 			glType = GL_UNSIGNED_BYTE;
@@ -497,6 +501,8 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
         // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
         // see: http://www.meandmark.com/textureloadingpart7.html
         glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else if (texData.glTypeInternal == GL_RGB_422_APPLE){
+        glTexImage2D(texData.textureTarget, 0, GL_RGB, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }else{
         glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }
@@ -559,6 +565,8 @@ void ofTexture::allocate(const ofTextureData & textureData){
         // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
         // see: http://www.meandmark.com/textureloadingpart7.html
         glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else if (texData.glTypeInternal == GL_RGB_422_APPLE){
+        glTexImage2D(texData.textureTarget, 0, GL_RGB, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }else{
         glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }
