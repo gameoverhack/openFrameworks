@@ -155,6 +155,14 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
                 QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
                 break;
             }
+            case OF_PIXELS_UYVY:
+            {
+                w = w/2; // use half width textures and pixels for 2yuv
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
 //            case OF_PIXELS_RGB565:
 //            {
 //                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
