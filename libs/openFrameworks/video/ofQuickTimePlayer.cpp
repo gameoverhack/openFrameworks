@@ -302,7 +302,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
         case OF_PIXELS_2YUV:
         {
 #if !defined (TARGET_OSX) && !defined (GL_APPLE_rgb_422)
-            MacSetRect(&movieRect, 0, 0, width*2, height); // this makes it look correct but we lose the performance gains
+            MacSetRect(&movieRect, 0, 0, width*2, height); // this makes it look correct but we lose some of the performance gains
             SetMovieBox(moviePtr, &(movieRect));
             //width = width / 2; // this makes it go really fast but we only get 'half-resolution'...
             offscreenGWorldPixels = new unsigned char[4 * width * height + 32];

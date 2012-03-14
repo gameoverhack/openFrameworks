@@ -156,10 +156,17 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
             }
             case OF_PIXELS_2YUV:
             {
-                w = w/2;
+#if !defined (TARGET_OSX) && !defined (GL_APPLE_rgb_422)
+                MacSetRect(&videoRect, 0, 0, w*2, h); // this makes it look correct but we lose some of the performance gains
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
                 pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
                 QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+#else
+                offscreenGWorldPixels = new unsigned char[2 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 2 * w);
+#endif
+                
                 break;
             }
 //            case OF_PIXELS_RGB565:
