@@ -139,7 +139,7 @@ inline ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 	}
 }
 
-#define OF_ARGB GL_BGRA+1
+#define OF_ARGB !GL_BGRA // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8 so we define this custom type
 
 inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){

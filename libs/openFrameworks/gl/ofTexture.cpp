@@ -84,6 +84,7 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 #endif
         case GL_ABGR_EXT: return "GL_ABGR_EXT";
         case GL_BGRA: return "GL_BGRA";
+        case OF_ARGB: return "OF_ARGB"; // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8
 		case GL_LUMINANCE: return "GL_LUMINANCE";
 #ifndef TARGET_OPENGLES
 		case GL_LUMINANCE8: return "GL_LUMINANCE8";
@@ -131,7 +132,7 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
             glFormat = GL_ABGR_EXT;
 			glType = GL_UNSIGNED_BYTE;
             break;
-        case OF_ARGB:
+        case OF_ARGB: // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8
             glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8;
             break;
@@ -493,6 +494,8 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
         // to use glTypeInternal and glType set to GL_BGRA and pixelType 
         // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
         // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
+        // see: http://www.meandmark.com/textureloadingpart7.html
         glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }else{
         glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
@@ -553,6 +556,8 @@ void ofTexture::allocate(const ofTextureData & textureData){
         // to use glTypeInternal and glType set to GL_BGRA and pixelType 
         // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
         // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
+        // see: http://www.meandmark.com/textureloadingpart7.html
         glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
     }else{
         glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
@@ -619,7 +624,7 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	//  but with a "step" size of w?
 	// 	check "glTexSubImage2D"
     if(glFormat != texData.glTypeInternal){
-        texData.glType = glFormat;
+        texData.glType = glFormat; // should we allow this override at all?
     }
 	
 	/*if(glFormat!=texData.glType) {
@@ -627,7 +632,7 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 		return;
 	}*/
 	
-	if(w > texData.tex_w || h > texData.tex_h) {
+	if(w > texData.tex_w || h > texData.tex_h){
 		ofLogError() << "ofTexture::loadData() failed to upload " <<  w << "x" << h << " data to " << texData.tex_w << "x" << texData.tex_h << " texture";
 		return;
 	}
@@ -638,10 +643,10 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	
 	// compute new tex co-ords based on the ratio of data's w, h to texture w,h;
 #ifndef TARGET_OPENGLES
-	if (texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
+	if(texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
 		texData.tex_t = w;
 		texData.tex_u = h;
-	} else 
+	}else 
 #endif
 	{
 		texData.tex_t = (float)(w) / (float)texData.tex_w;
@@ -677,7 +682,7 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	
 	
 	//Sosolimited: texture compression
-	if (texData.compressionType == OF_COMPRESS_NONE) {
+	if(texData.compressionType == OF_COMPRESS_NONE){
 		//STANDARD openFrameworks: no compression
 		
 		//update the texture image: 
@@ -685,12 +690,12 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 		glBindTexture(texData.textureTarget, (GLuint) texData.textureID);
  		glTexSubImage2D(texData.textureTarget, 0, 0, 0, w, h, texData.glType, texData.pixelType, data);
 		glDisable(texData.textureTarget);
-	} else {
+	}else{
 		//SOSOLIMITED: setup mipmaps and use compression
 		//TODO: activate at least mimaps for OPENGL_ES
 		//need proper tex_u and tex_t positions, with mipmaps they are the nearest power of 2
 #ifndef TARGET_OPENGLES		
-		if (texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
+		if(texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
 			
 			//need to find closest powers of two
 			int last_h = ofNextPow2(texData.height)>>1;
@@ -722,40 +727,33 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 		
 		
 #ifndef TARGET_OPENGLES		
-		//using sRGB compression
-		if (texData.compressionType == OF_COMPRESS_SRGB)
-		{
-			if(texData.glType == GL_RGBA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_RGB)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE_ALPHA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-		}
 		
-		//using ARB compression: default
-		else
-		{
-			if(texData.glType == GL_RGBA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_RGBA_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_RGB)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_RGB_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE_ALPHA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_LUMINANCE_ALPHA_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_LUMINANCE_ARB, w, h, texData.glType, texData.pixelType, data);
+        int glCompressionType = 0;
+		if(texData.compressionType == OF_COMPRESS_SRGB){
+            // using sRGB compression
+            glCompressionType = GL_COMPRESSED_SRGB_ALPHA;
+		}else{
+            // using ARB compression: default
+            switch(texData.glType){
+                case GL_RGBA:
+                case GL_BGRA:
+                case OF_ARGB:
+                case GL_ABGR_EXT:
+                    glCompressionType = GL_COMPRESSED_RGBA_ARB;
+                    break;
+                case GL_RGB:
+                    glCompressionType = GL_COMPRESSED_RGB_ARB;
+                    break;
+                case GL_LUMINANCE:
+                    glCompressionType = GL_COMPRESSED_LUMINANCE_ALPHA_ARB;
+                    break;
+                case GL_LUMINANCE_ALPHA:
+                    glCompressionType = GL_COMPRESSED_LUMINANCE_ARB;
+                    break;
+            }
 		}
+        gluBuild2DMipmaps(texData.textureTarget, glCompressionType, w, h, texData.glType, texData.pixelType, data);
 #endif
-		
-		
 		glDisable(texData.textureTarget);
 		
 	}
