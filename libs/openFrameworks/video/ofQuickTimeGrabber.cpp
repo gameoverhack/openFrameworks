@@ -154,7 +154,7 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
                 QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
                 break;
             }
-            case OF_PIXELS_UYVY:
+            case OF_PIXELS_2YUV:
             {
                 w = w/2;
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
