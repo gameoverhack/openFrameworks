@@ -105,9 +105,8 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 		//---------------------------------- 2 - set the dimensions
 		//width 		= w;
 		//height 		= h;
-
-		MacSetRect(&videoRect, 0, 0, w, h);
-
+        MacSetRect(&videoRect, 0, 0, w, h);
+		
 		//---------------------------------- 3 - buffer allocation
         switch(internalPixelFormat){
             case OF_PIXELS_MONO:
@@ -157,7 +156,7 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
             }
             case OF_PIXELS_UYVY:
             {
-                w = w/2; // use half width textures and pixels for 2yuv
+                w = w/2;
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
                 pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
                 QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);

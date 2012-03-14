@@ -235,12 +235,10 @@ void ofQuickTimePlayer::closeMovie(){
 //--------------------------------------
 
 void ofQuickTimePlayer::createImgMemAndGWorld(){
+    
 	Rect movieRect;
-	movieRect.top 			= 0;
-	movieRect.left 			= 0;
-	movieRect.bottom 		= height;
-	movieRect.right 		= width;
-
+    MacSetRect(&movieRect, 0, 0, width, height);
+    
     switch(internalPixelFormat){
         case OF_PIXELS_MONO:
         {
@@ -289,7 +287,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
         }
         case OF_PIXELS_UYVY:
         {
-            width = width/2; // use half width textures and pixels for 2yuv
+            width = width/2; // half width textures and pixels for YUV -> although I feel like this isn't working quite right yet...
             offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
             QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
@@ -304,6 +302,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 //        }
     }
 
+    //SetMovieBox(moviePtr, &(movieRect));
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
 	SetGWorld (offscreenGWorld, NULL);
 	SetMovieGWorld (moviePtr, offscreenGWorld, nil);
