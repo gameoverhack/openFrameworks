@@ -285,6 +285,20 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             QTNewGWorldFromPtr (&(offscreenGWorld), k32BGRAPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
             break;
         }
+        case OF_PIXELS_ABGR:
+        {
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k32ABGRPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+            break;
+        }
+        case OF_PIXELS_ARGB:
+        {
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k32ARGBPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+            break;
+        }
         case OF_PIXELS_UYVY:
         {
             width = width/2; // half width textures and pixels for YUV -> although I feel like this isn't working quite right yet...

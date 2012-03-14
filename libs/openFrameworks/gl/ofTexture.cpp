@@ -82,6 +82,7 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 #ifndef TARGET_OPENGLES
 		case GL_RGB8: return "GL_RGB8";
 #endif
+        case GL_ABGR_EXT: return "GL_ABGR_EXT";
         case GL_BGRA: return "GL_BGRA";
 		case GL_LUMINANCE: return "GL_LUMINANCE";
 #ifndef TARGET_OPENGLES
@@ -126,6 +127,14 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 			glFormat = GL_LUMINANCE;
 			glType = GL_UNSIGNED_BYTE;
 			break;
+        case GL_ABGR_EXT:
+            glFormat = GL_ABGR_EXT;
+			glType = GL_UNSIGNED_BYTE;
+            break;
+        case OF_ARGB:
+            glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8;
+            break;
         case GL_BGRA:
             glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
@@ -478,7 +487,7 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-    if(texData.glTypeInternal == GL_BGRA){
+    if(texData.glTypeInternal == GL_BGRA || texData.glTypeInternal == GL_ABGR_EXT || texData.glTypeInternal == OF_ARGB){
         // annoyingly the correct way to init BGRA texture is with GL_RGBA 
         // where we've been using texData.glTypeInternal, but we still want 
         // to use glTypeInternal and glType set to GL_BGRA and pixelType 
@@ -538,7 +547,7 @@ void ofTexture::allocate(const ofTextureData & textureData){
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-    if(texData.glTypeInternal == GL_BGRA){
+    if(texData.glTypeInternal == GL_BGRA || texData.glTypeInternal == GL_ABGR_EXT || texData.glTypeInternal == OF_ARGB){
         // annoyingly the correct way to init BGRA texture is with GL_RGBA 
         // where we've been using texData.glTypeInternal, but we still want 
         // to use glTypeInternal and glType set to GL_BGRA and pixelType 
@@ -609,7 +618,9 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	//	int uploadH = MIN(h, tex_h);
 	//  but with a "step" size of w?
 	// 	check "glTexSubImage2D"
-	texData.glType = glFormat;
+    if(glFormat != texData.glTypeInternal){
+        texData.glType = glFormat;
+    }
 	
 	/*if(glFormat!=texData.glType) {
 		ofLogError() << "ofTexture::loadData() failed to upload format " <<  ofGetGlInternalFormatName(glFormat) << " data to " << ofGetGlInternalFormatName(texData.glType) << " texture" <<endl;

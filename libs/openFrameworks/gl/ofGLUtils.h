@@ -139,11 +139,17 @@ inline ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 	}
 }
 
+#define OF_ARGB GL_BGRA+1
+
 inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
+    case OF_PIXELS_ARGB:
+        return OF_ARGB;
     case OF_PIXELS_UYVY:
 	case OF_PIXELS_BGRA:
 		return GL_BGRA;
+    case OF_PIXELS_ABGR:
+        return GL_ABGR_EXT;
 	case OF_PIXELS_MONO:
 		return GL_LUMINANCE;
 	case OF_PIXELS_RGB:
