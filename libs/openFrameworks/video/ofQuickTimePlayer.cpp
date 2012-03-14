@@ -301,13 +301,20 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
         }
         case OF_PIXELS_2YUV:
         {
-            width = width / 2; // half width textures and pixels for YUV
+#if !defined (TARGET_OSX) && !defined (GL_APPLE_rgb_422)
+            MacSetRect(&movieRect, 0, 0, width*2, height); // this makes it look correct but we lose the performance gains
+            SetMovieBox(moviePtr, &(movieRect));
+            //width = width / 2; // this makes it go really fast but we only get 'half-resolution'...
             offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
             QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
-#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
-            width = width * 2;
+#else
+            // this works perfectly on Mac platform!
+            offscreenGWorldPixels = new unsigned char[2 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 2 * width);
 #endif
+            
             break;
         }
 //        case OF_PIXELS_RGB565:
@@ -319,7 +326,6 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 //        }
     }
 
-    //SetMovieBox(moviePtr, &(movieRect));
 	LockPixels(GetGWorldPixMap(offscreenGWorld));
 	SetGWorld (offscreenGWorld, NULL);
 	SetMovieGWorld (moviePtr, offscreenGWorld, nil);
