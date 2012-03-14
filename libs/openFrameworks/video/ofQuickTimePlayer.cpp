@@ -301,10 +301,13 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
         }
         case OF_PIXELS_UYVY:
         {
-            //width = width/2; // half width textures and pixels for YUV -> although I feel like this isn't working quite right yet...
-            offscreenGWorldPixels = new unsigned char[2 * width * height + 32];
-            pixels.allocate(width/2, height, OF_IMAGE_COLOR_ALPHA);
-            QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 2 * width);
+            width = width / 2; // half width textures and pixels for YUV
+            offscreenGWorldPixels = new unsigned char[4 * width * height + 32];
+            pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
+            QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+            width = width * 2;
+#endif
             break;
         }
 //        case OF_PIXELS_RGB565:

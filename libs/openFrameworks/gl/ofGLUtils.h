@@ -146,7 +146,9 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
     case OF_PIXELS_ARGB:
         return OF_ARGB;
     case OF_PIXELS_UYVY:
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
         return GL_RGB_422_APPLE;
+#endif
 	case OF_PIXELS_BGRA:
 		return GL_BGRA;
     case OF_PIXELS_ABGR:
