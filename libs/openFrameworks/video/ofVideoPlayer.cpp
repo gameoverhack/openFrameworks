@@ -252,6 +252,13 @@ void ofVideoPlayer::previousFrame(){
 }
 
 //---------------------------------------------------------------------------
+void ofVideoPlayer::syncToMovie(ofPtr<ofBaseVideoPlayer> _player){
+    if( player != NULL ){
+        player->syncToMovie(_player);
+    }
+}
+
+//---------------------------------------------------------------------------
 void ofVideoPlayer::setSpeed(float _speed){
 	if( player != NULL ){
 		player->setSpeed(_speed);

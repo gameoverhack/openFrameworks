@@ -76,7 +76,9 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		void				firstFrame();
 		void				nextFrame();
 		void				previousFrame();
-
+    
+        void                syncToMovie(ofPtr<ofBaseVideoPlayer> player);
+    
 		float 				getHeight();
 		float 				getWidth();
 
@@ -89,6 +91,7 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		int					width;
 
 	private:
+    
 		ofPtr<ofBaseVideoPlayer>		player;
 		
 		ofTexture tex;

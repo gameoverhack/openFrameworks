@@ -260,6 +260,7 @@ public:
 	virtual void				firstFrame();
 	virtual void				nextFrame();
 	virtual void				previousFrame();
+    virtual void                syncToMovie(ofPtr<ofBaseVideoPlayer> player);
 	virtual void				setPixelFormat(ofPixelFormat pixelFormat);
 	
 };

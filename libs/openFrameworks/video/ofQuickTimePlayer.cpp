@@ -745,7 +745,33 @@ void ofQuickTimePlayer::previousFrame(){
 	//--------------------------------------
 }
 
-
+//---------------------------------------------------------------------------
+void ofQuickTimePlayer::syncToMovie(ofPtr<ofBaseVideoPlayer> _player){
+    // inspired by Memo's tip: http://dev.openframeworks.cc/pipermail/of-dev-openframeworks.cc/2012-March/004096.html
+    // and http://stackoverflow.com/questions/9593368/swapping-qtmovieview-on-an-nswindow-causes-flicker/9711008#9711008
+    // and http://www.mactech.com/articles/develop/issue_12/Ortiz_final.html
+    
+    // have to cast the smart-pointer to a shared pointer
+    std::tr1::shared_ptr<ofQuickTimePlayer> player = std::tr1::static_pointer_cast<ofQuickTimePlayer>(_player);
+    
+    // set to the same frame (maybe should use TimeBase to do this more accurately?)
+    setFrame(player->getCurrentFrame());
+    
+    // get the the master timebase
+    TimeBase masterTimeBase = GetMovieTimeBase(player->moviePtr);
+    TimeValue masterTimeScale = GetMovieTimeScale(player->moviePtr);
+    TimeRecord slaveZero;
+    TimeValue slaveZeroTV = GetTimeBaseStartTime(masterTimeBase, masterTimeScale, &slaveZero);
+    
+    // set this movie to slave to the master time base
+    SetMovieMasterTimeBase(moviePtr, masterTimeBase, &slaveZero);
+    
+    // check for errors
+    OSErr err = GetMoviesError();
+    if(err != noErr){
+        ofLogError() << "Could not slave the movie!";
+    }
+}
 
 //---------------------------------------------------------------------------
 void ofQuickTimePlayer::setSpeed(float _speed){

@@ -131,6 +131,12 @@ void ofBaseVideoPlayer::nextFrame(){
 void ofBaseVideoPlayer::previousFrame(){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::previousFrame not implemented");
 }
+
+//---------------------------------------------------------------------------
+void ofBaseVideoPlayer::syncToMovie(ofPtr<ofBaseVideoPlayer> _player){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::syncToMovie not implemented");
+}
+
 //---------------------------------------------------------------------------
 void ofBaseVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setPixelFormat not implemented");
