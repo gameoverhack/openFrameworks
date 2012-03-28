@@ -105,9 +105,8 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 		//---------------------------------- 2 - set the dimensions
 		//width 		= w;
 		//height 		= h;
-
-		MacSetRect(&videoRect, 0, 0, w, h);
-
+        MacSetRect(&videoRect, 0, 0, w, h);
+		
 		//---------------------------------- 3 - buffer allocation
         switch(internalPixelFormat){
             case OF_PIXELS_MONO:
@@ -150,22 +149,33 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
             }
             case OF_PIXELS_BGRA:
             {
-                // NOT SURE IF THIS IS CORRECT ?? 
-                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
                 offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
                 pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
                 QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
                 break;
             }
-            case OF_PIXELS_RGB565:
+            case OF_PIXELS_2YUV:
             {
-                // NOT SURE IF THIS IS CORRECT ?? 
-                // also need to check ofGetGLTypeFromPixelFormat becoause of texture allocation and loadData...
-                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
-                pixels.allocate(w, h, OF_IMAGE_COLOR);
-                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+#if !defined (TARGET_OSX) && !defined (GL_APPLE_rgb_422)
+                MacSetRect(&videoRect, 0, 0, w*2, h); // this makes it look correct but we lose some of the performance gains
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+#else
+                offscreenGWorldPixels = new unsigned char[2 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 2 * w);
+#endif
+                
                 break;
             }
+//            case OF_PIXELS_RGB565:
+//            {
+//                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
+//                pixels.allocate(w, h, OF_IMAGE_COLOR);
+//                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+//                break;
+//            }
         }
 		
 		LockPixels(GetGWorldPixMap(videogworld));
@@ -278,6 +288,10 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 //--------------------------------------------------------------------
 void ofQuickTimeGrabber::setPixelFormat(ofPixelFormat pixelFormat){
+    if(pixelFormat == OF_PIXELS_RGB565){
+        ofLogWarning() << "Pixel format not yet supported. Defaulting to OF_PIXELS_RGB";
+        pixelFormat = OF_PIXELS_RGB;
+    }
     internalPixelFormat = pixelFormat;
 }
 
