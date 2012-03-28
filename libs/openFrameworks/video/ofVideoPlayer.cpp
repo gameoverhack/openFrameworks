@@ -19,8 +19,12 @@ ofPtr<ofBaseVideoPlayer> ofVideoPlayer::getPlayer(){
 }
 
 //--------------------------------------------------------------------
-void ofVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat) {
-	internalPixelFormat = pixelFormat;
+void ofVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat){
+    if(player != NULL){
+        ofLogError() << "Cannot change pixel format after player has been started! Call setPixelFormat before loadMovie";
+    }else{
+        internalPixelFormat = pixelFormat;
+    }
 }
 
 //---------------------------------------------------------------------------
@@ -99,21 +103,20 @@ void ofVideoPlayer::update(){
 
 		player->update();
 		
-		if( bUseTexture && player->isFrameNew() ) {
+		if(bUseTexture && player->isFrameNew()){
 			
 			playerTex = player->getTexture();
 			
 			if(playerTex == NULL){
 				unsigned char *pxls = player->getPixels();
 
-				if(width==0 || height==0) {
-					if(player->getWidth() != 0 && player->getHeight() != 0) {
+				if(width == 0 || height == 0){
+					if(player->getWidth() != 0 && player->getHeight() != 0){
 						
 						width = player->getWidth();
 						height = player->getHeight();
 					
-						if(tex.bAllocated())
-							tex.clear();
+						if(tex.bAllocated()) tex.clear();
 					
 						tex.allocate(width, height, ofGetGLTypeFromPixelFormat(internalPixelFormat));
 						tex.loadData(pxls, tex.getWidth(), tex.getHeight(), ofGetGLTypeFromPixelFormat(internalPixelFormat));
