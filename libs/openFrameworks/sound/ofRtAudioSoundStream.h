@@ -18,6 +18,9 @@ class ofRtAudioSoundStream : public ofBaseSoundStream{
 		void setDeviceID(int deviceID);
         bool setDeviceID(string deviceName);
 
+        void setInDeviceID(int deviceID);
+        void setOutDeviceID(int deviceID);
+
 		void setInput(ofBaseSoundInput * soundInput);
 		void setOutput(ofBaseSoundOutput * soundOutput);
 		bool setup(int outChannels, int inChannels, int sampleRate, int bufferSize, int nBuffers);
@@ -37,7 +40,8 @@ class ofRtAudioSoundStream : public ofBaseSoundStream{
 		long unsigned long	tickCount;
 		ofPtr<RtAudio>		audio;
 		int					sampleRate;
-		int					deviceID;
+		int					outDeviceID, inDeviceID;
+
 		int					nInputChannels;
 		int					nOutputChannels;
 		ofBaseSoundInput *  soundInputPtr;

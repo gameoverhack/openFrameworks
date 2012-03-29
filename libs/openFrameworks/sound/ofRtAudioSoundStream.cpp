@@ -14,7 +14,8 @@ int receiveAudioBufferAndCallSimpleApp(void *outputBuffer, void *inputBuffer, un
 
 //------------------------------------------------------------------------------
 ofRtAudioSoundStream::ofRtAudioSoundStream(){
-	deviceID		= -1;
+	outDeviceID		= -1;
+    inDeviceID		= -1;
 	soundOutputPtr	= NULL;
 	soundInputPtr	= NULL;
 	tickCount= 0;
@@ -78,7 +79,7 @@ vector<ofStreamDeviceInfo> ofRtAudioSoundStream::listDevices(){
 
 //------------------------------------------------------------------------------
 void ofRtAudioSoundStream::setDeviceID(int _deviceID){
-	deviceID = _deviceID;
+    inDeviceID = outDeviceID = _deviceID;
 	// TODO: return true or false on success and issue log notice and error where appropriate
 }
 
@@ -89,14 +90,22 @@ bool ofRtAudioSoundStream::setDeviceID(string _deviceName){
     for(int i = 0; i < deviceVec.size(); i++) {
         ofStreamDeviceInfo deviceInfo = deviceVec[i];
         if (deviceInfo.name == _deviceName) {
-            deviceID = i;
-            ofLog(OF_LOG_NOTICE) << "Succesfully set device to: device " << deviceID << deviceInfo.name;
+            inDeviceID = outDeviceID = i;
+            ofLog(OF_LOG_NOTICE) << "Succesfully set device to: device " << inDeviceID << deviceInfo.name;
             return true;
         }
     }
 
     ofLog(OF_LOG_ERROR) << "Failed to set device to: " << _deviceName;
     return false;
+}
+
+void ofRtAudioSoundStream::setInDeviceID(int _deviceID){
+	inDeviceID = _deviceID;
+}
+
+void ofRtAudioSoundStream::setOutDeviceID(int _deviceID){
+	outDeviceID = _deviceID;
 }
 
 //------------------------------------------------------------------------------
@@ -132,8 +141,8 @@ bool ofRtAudioSoundStream::setup(int outChannels, int inChannels, int _sampleRat
 	RtAudio::StreamParameters outputParameters;
 	RtAudio::StreamParameters inputParameters;
 	if(nInputChannels>0){
-		if( deviceID >= 0 ){
-			inputParameters.deviceId = deviceID;
+		if( inDeviceID >= 0 ){
+			inputParameters.deviceId = inDeviceID;
 		}else{
 			inputParameters.deviceId = audio->getDefaultInputDevice();
 		}
@@ -141,8 +150,8 @@ bool ofRtAudioSoundStream::setup(int outChannels, int inChannels, int _sampleRat
 	}
 
 	if(nOutputChannels>0){
-		if( deviceID >= 0 ){
-			outputParameters.deviceId = deviceID;
+		if( outDeviceID >= 0 ){
+			outputParameters.deviceId = outDeviceID;
 		}else{
 			outputParameters.deviceId = audio->getDefaultOutputDevice();
 		}
@@ -251,7 +260,7 @@ int ofRtAudioSoundStream::rtAudioCallback(void *outputBuffer, void *inputBuffer,
 
 	if(nInputChannels > 0){
 		if( rtStreamPtr->soundInputPtr != NULL ){
-			rtStreamPtr->soundInputPtr->audioIn((float*)inputBuffer, bufferSize, nInputChannels, rtStreamPtr->deviceID, rtStreamPtr->tickCount);
+			rtStreamPtr->soundInputPtr->audioIn((float*)inputBuffer, bufferSize, nInputChannels, rtStreamPtr->inDeviceID, rtStreamPtr->tickCount);
 		}
 		memset(fPtrIn, 0, bufferSize * nInputChannels * sizeof(float));
 	}
@@ -259,7 +268,7 @@ int ofRtAudioSoundStream::rtAudioCallback(void *outputBuffer, void *inputBuffer,
 	if (nOutputChannels > 0) {
 		memset(fPtrOut, 0, sizeof(float) * bufferSize * nOutputChannels);
 		if( rtStreamPtr->soundOutputPtr != NULL ){
-			rtStreamPtr->soundOutputPtr->audioOut((float*)outputBuffer, bufferSize, nOutputChannels, rtStreamPtr->deviceID, rtStreamPtr->tickCount);
+			rtStreamPtr->soundOutputPtr->audioOut((float*)outputBuffer, bufferSize, nOutputChannels, rtStreamPtr->outDeviceID, rtStreamPtr->tickCount);
 		}
 	}
 
