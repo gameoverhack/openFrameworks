@@ -1,5 +1,8 @@
 #include "testApp.h"
-
+static float currentTime = 0;
+static float totalTime = 0;
+static int numTimes = 0;
+static float avgTime = 0;
 //--------------------------------------------------------------
 void testApp::setup(){
 
@@ -47,7 +50,7 @@ void testApp::update(){
 			grayBg = grayImage;		// the = sign copys the pixels from grayImage into grayBg (operator overloading)
 			bLearnBakground = false;
 		}
-
+        int startTime = ofGetElapsedTimeMicros();
 		// take the abs value of the difference between background and incoming and then threshold:
 		grayDiff.absDiff(grayBg, grayImage);
 		grayDiff.threshold(threshold);
@@ -55,6 +58,13 @@ void testApp::update(){
 		// find contours which are between the size of 20 pixels and 1/3 the w*h pixels.
 		// also, find holes is set to true so we will get interior contours as well....
 		contourFinder.findContours(grayDiff, 20, (340*240)/3, 10, true);	// find holes
+
+        int endTime = ofGetElapsedTimeMicros();
+        currentTime = endTime - startTime;
+        totalTime += currentTime;
+        numTimes++;
+        avgTime = (float)totalTime / (float)numTimes;
+
 	}
 
 }
@@ -89,7 +99,7 @@ void testApp::draw(){
 
 	ofSetHexColor(0xffffff);
 	char reportStr[1024];
-	sprintf(reportStr, "bg subtraction and blob detection\npress ' ' to capture bg\nthreshold %i (press: +/-)\nnum blobs found %i, fps: %f", threshold, contourFinder.nBlobs, ofGetFrameRate());
+	sprintf(reportStr, "bg subtraction and blob detection\npress ' ' to capture bg\nthreshold %i (press: +/-)\nnum blobs found %i, fps: %f\ncurrentTime: %f\ntotalTime: %f\nnumTimes: %i\navgTime: %f", threshold, contourFinder.nBlobs, ofGetFrameRate(), currentTime, totalTime, numTimes, avgTime);
 	ofDrawBitmapString(reportStr, 20, 600);
 
 }
@@ -148,6 +158,6 @@ void testApp::gotMessage(ofMessage msg){
 }
 
 //--------------------------------------------------------------
-void testApp::dragEvent(ofDragInfo dragInfo){ 
+void testApp::dragEvent(ofDragInfo dragInfo){
 
 }
