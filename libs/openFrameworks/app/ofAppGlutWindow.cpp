@@ -169,7 +169,7 @@ static LRESULT CALLBACK winProc(HWND hwnd, UINT Msg, WPARAM wParam, LPARAM lPara
 static void fixCloseWindowOnWin32(){
 
 	//get the HWND
-	handle = WindowFromDC(wglGetCurrentDC());
+	/*handle = WindowFromDC(wglGetCurrentDC());
 
 	// enable drag and drop of files.
 	DragAcceptFiles (handle, TRUE);
@@ -179,6 +179,7 @@ static void fixCloseWindowOnWin32(){
 
 	//tell the window to now use our event handler!
 	SetWindowLongPtr(handle, GWL_WNDPROC, (long)winProc);
+	*/
 }
 
 #endif

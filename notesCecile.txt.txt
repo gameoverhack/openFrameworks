@@ -33,4 +33,4 @@ in ofPath.cpp commented "ofTessellator ofPath::tessellator;" and the method "tes
 (the application was unable to start correctly 0xc00007b)
 
 - copied files fmodex64.dll and fmodexL64.dll from C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api and renamed them without the 64 in the bin folder.
-- 
+- copied other dll....

@@ -6,7 +6,7 @@
 #include "ofPolyline.h"
 #include "ofBaseTypes.h"
 #include "ofMesh.h"
-#include "ofTessellator.h"
+//#include "ofTessellator.h"
 
 class ofSubPath;
 
@@ -130,7 +130,7 @@ private:
 	ofMesh				cachedTessellation;
 	bool				cachedTessellationValid;
 
-	static ofTessellator tessellator;
+	//static ofTessellator tessellator;
 
 	bool				hasChanged;
 	int					prevCurveRes;

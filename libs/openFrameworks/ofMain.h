@@ -51,7 +51,7 @@
 #include "ofPixels.h"
 #include "ofPolyline.h"
 #include "ofRendererCollection.h"
-#include "ofTessellator.h"
+//#include "ofTessellator.h"
 #include "ofTrueTypeFont.h"
 
 //--------------------------
@@ -66,8 +66,8 @@
 
 //--------------------------
 // video
-#include "ofVideoGrabber.h"
-#include "ofVideoPlayer.h"
+//#include "ofVideoGrabber.h"
+//#include "ofVideoPlayer.h"
 
 //--------------------------
 // events

@@ -16,9 +16,6 @@
     <Filter Include="libs\openFrameworks\sound">
       <UniqueIdentifier>{be31c78d-2c42-4129-b235-b5c0723f734c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="libs\openFrameworks\video">
-      <UniqueIdentifier>{b78d61d8-4705-4dd6-b395-b0340c42a6a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="libs\openFrameworks\communication">
       <UniqueIdentifier>{608df362-91fb-44e3-9d2e-cf29cde4fe28}</UniqueIdentifier>
     </Filter>
@@ -57,15 +54,6 @@
     <ClInclude Include="..\..\..\openFrameworks\sound\ofSoundStream.h">
       <Filter>libs\openFrameworks\sound</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofQtUtils.h">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofVideoGrabber.h">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofVideoPlayer.h">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\openFrameworks\communication\ofArduino.h">
       <Filter>libs\openFrameworks\communication</Filter>
     </ClInclude>
@@ -92,9 +80,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\openFrameworks\types\ofRectangle.h">
       <Filter>libs\openFrameworks\types</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofDirectShowGrabber.h">
-      <Filter>libs\openFrameworks\video</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\openFrameworks\app\ofAppBaseWindow.h">
       <Filter>libs\openFrameworks\app</Filter>
@@ -192,9 +177,6 @@
     <ClInclude Include="..\..\..\openFrameworks\graphics\ofRendererCollection.h">
       <Filter>libs\openFrameworks\graphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\graphics\ofTessellator.h">
-      <Filter>libs\openFrameworks\graphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\openFrameworks\graphics\ofTrueTypeFont.h">
       <Filter>libs\openFrameworks\graphics</Filter>
     </ClInclude>
@@ -234,12 +216,6 @@
     <ClInclude Include="..\..\..\openFrameworks\sound\ofFmodSoundPlayer.h">
       <Filter>libs\openFrameworks\sound</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofQuickTimePlayer.h">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\openFrameworks\video\ofQuickTimeGrabber.h">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\openFrameworks\app\ofAppGlutWindow.cpp">
@@ -253,15 +229,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\sound\ofSoundStream.cpp">
       <Filter>libs\openFrameworks\sound</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofQtUtils.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofVideoGrabber.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofVideoPlayer.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\communication\ofArduino.cpp">
       <Filter>libs\openFrameworks\communication</Filter>
@@ -280,9 +247,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\types\ofRectangle.cpp">
       <Filter>libs\openFrameworks\types</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofDirectShowGrabber.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\events\ofEvents.cpp">
       <Filter>libs\openFrameworks\events</Filter>
@@ -359,9 +323,6 @@
     <ClCompile Include="..\..\..\openFrameworks\graphics\ofPolyline.cpp">
       <Filter>libs\openFrameworks\graphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\graphics\ofTessellator.cpp">
-      <Filter>libs\openFrameworks\graphics</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\graphics\ofTrueTypeFont.cpp">
       <Filter>libs\openFrameworks\graphics</Filter>
     </ClCompile>
@@ -400,12 +361,6 @@
     </ClCompile>
     <ClCompile Include="..\..\..\openFrameworks\math\ofVec2f.cpp">
       <Filter>libs\openFrameworks\math</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofQuickTimeGrabber.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\openFrameworks\video\ofQuickTimePlayer.cpp">
-      <Filter>libs\openFrameworks\video</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

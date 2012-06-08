@@ -2,7 +2,7 @@
 #include "ofGraphics.h"
 #include "ofTessellator.h"
 
-ofTessellator ofPath::tessellator;
+//ofTessellator ofPath::tessellator;
 
 //----------------------------------------------------------
 ofSubPath::ofSubPath(){
@@ -396,7 +396,7 @@ void ofPath::generatePolylinesFromPaths(){
 
 //----------------------------------------------------------
 void ofPath::tessellate(){
-	generatePolylinesFromPaths();
+	/*generatePolylinesFromPaths();
 	if(!bNeedsTessellation) return;
 	if(bFill){
 		tessellator.tessellateToMesh( polylines, windingMode, cachedTessellation);
@@ -406,6 +406,7 @@ void ofPath::tessellate(){
 		tessellator.tessellateToPolylines( polylines, windingMode, tessellatedContour);
 	}
 	bNeedsTessellation = false;
+	*/
 }
 
 //----------------------------------------------------------
