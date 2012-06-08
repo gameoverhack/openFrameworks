@@ -1,0 +1,36 @@
+starting..
+
+6.6.12: 
+- created empty example with project generator.
+- removed video in ofMain,include and lib dir(video, videoInput, quicktime) 
+- commented #include "ofQtUtils.h" and "closeQuicktime" in ofExitCallback from ofAppRunner 
+
+-> runs without video in 32 bits.
+
+- moved to 64
+- commented method fixCloseWindowOnWin32 because of error "..\..\..\openFrameworks\app\ofAppGlutWindow.cpp(178): error C2065: 'GWL_WNDPROC' : undeclared identifier"
+- got 4287432704 bytes; 3.99298 Gigabytes testing in main. with all OF coded of the appgui commented. Just to be sure the project was gonna assign aroud 4 Gb.
+
+STEP BY STEP solving link problems:
+
+- compiling poco (release static md) foundation,net,util,xml. (poco located in my download folder) -> unresolved external symbol link problem gone
+- compiled glut (located in the FL common folder)  -> unresolved external symbol link problem gone
+- glew 1.7.0 win64 downloaded on http://glew.sourceforge.net/ -> unresolved external symbol link problem gone
+- cairo 1.10.2 downloaded on http://www.gtk.org/download/win64.php. Renamed library cairo as it was previously for 32, that is cairo-static -> unresolved external symbol link problem gone
+- FreeImage (copied from previous attempts of getting OF under 64 bits) -> unresolved external symbol link problem gone
+- copied C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64\GLU32 in OF -> unresolved external symbol link problem gone
+- looks like a pain finding tess.. jumping to next library
+- copied files fmodex64_vc and fmodexL64_vc from C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api\lib and renamed them without the 64.
+Probably downloaded at some point the fmodex programmers api from http://www.fmod.org/fmod-downloads.html
+misses the fmodexp_vc.. but -> unresolved external symbol link problem gone for now..
+- did not directly found tess2.. moved out from OF for now:
+
+removed ofTessellator*
+in ofPath.h commented "#include "ofTessellator.h" and "static ofTessellator tessellator;"
+in ofPath.cpp commented "ofTessellator ofPath::tessellator;" and the method "tessellate"
+
+- compiles and links correctly. but application does not start. No wonder.. did not yet put right dlls.
+(the application was unable to start correctly 0xc00007b)
+
+- copied files fmodex64.dll and fmodexL64.dll from C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api and renamed them without the 64 in the bin folder.
+- 
