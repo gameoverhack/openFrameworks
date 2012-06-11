@@ -33,4 +33,12 @@ in ofPath.cpp commented "ofTessellator ofPath::tessellator;" and the method "tes
 (the application was unable to start correctly 0xc00007b)
 
 - copied files fmodex64.dll and fmodexL64.dll from C:\Program Files (x86)\FMOD SoundSystem\FMOD Programmers API Windows\api and renamed them without the 64 in the bin folder.
-- copied other dll....
+- FreeImage.dll from http://www.sambeauvois.be/blog/2010/05/freeimage-and-x64-projects-yes-you-can/ (at the bottom there is a link to the FreeImageX64zip file)
+- glut32.dll from http://www.idfun.de/glut64/ renamed glut64.dll to glut32.dll
+
+The rest of the dll left for now:
+- Assinm32.dll
+- FreeType-6.dll
+- Zlib.dll 
+
+-> for now empty example work with load/draw image and show transparent rectangles...
