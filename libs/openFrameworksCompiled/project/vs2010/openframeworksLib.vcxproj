@@ -30,9 +30,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\..\..\..\gstreamer-sdk\2012.5\x86\share\vs\2010\libs\gstreamer-0.10.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\..\..\..\..\..\..\gstreamer-sdk\2012.5\x86\share\vs\2010\libs\gstreamer-0.10.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -139,6 +141,8 @@
     <ClInclude Include="..\..\..\openFrameworks\utils\ofURLFileLoader.h" />
     <ClInclude Include="..\..\..\openFrameworks\utils\ofUtils.h" />
     <ClInclude Include="..\..\..\openFrameworks\video\ofDirectShowGrabber.h" />
+    <ClInclude Include="..\..\..\openFrameworks\video\ofGstUtils.h" />
+    <ClInclude Include="..\..\..\openFrameworks\video\ofGstVideoPlayer.h" />
     <ClInclude Include="..\..\..\openFrameworks\video\ofQtUtils.h" />
     <ClInclude Include="..\..\..\openFrameworks\video\ofQuickTimeGrabber.h" />
     <ClInclude Include="..\..\..\openFrameworks\video\ofQuickTimePlayer.h" />
@@ -198,6 +202,8 @@
     <ClCompile Include="..\..\..\openFrameworks\utils\ofURLFileLoader.cpp" />
     <ClCompile Include="..\..\..\openFrameworks\utils\ofUtils.cpp" />
     <ClCompile Include="..\..\..\openFrameworks\video\ofDirectShowGrabber.cpp" />
+    <ClCompile Include="..\..\..\openFrameworks\video\ofGstUtils.cpp" />
+    <ClCompile Include="..\..\..\openFrameworks\video\ofGstVideoPlayer.cpp" />
     <ClCompile Include="..\..\..\openFrameworks\video\ofQtUtils.cpp" />
     <ClCompile Include="..\..\..\openFrameworks\video\ofQuickTimeGrabber.cpp" />
     <ClCompile Include="..\..\..\openFrameworks\video\ofQuickTimePlayer.cpp" />
