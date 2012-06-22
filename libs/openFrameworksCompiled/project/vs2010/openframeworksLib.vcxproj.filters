@@ -37,6 +37,9 @@
     <Filter Include="libs\openFrameworks\utils">
       <UniqueIdentifier>{e769ef16-c02a-402a-8eff-5d109f5a3a86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="addons">
+      <UniqueIdentifier>{ac6dbce8-f98f-4dc6-9760-a9699d46812a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\openFrameworks\ofMain.h">

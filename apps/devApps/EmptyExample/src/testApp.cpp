@@ -9,6 +9,19 @@ void testApp::setup()
 
 	mySound.loadSound("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/sounds/beat.wav");
 	mySound.play();
+	mySound.setVolume(0.1f);
+
+	//myFont.loadFont("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/DidotLTStd-Roman.ttf",24);
+	myFont.loadFont("DidotLTStd-Roman.ttf",24);
+
+/*	for(int i=0; i<4000; i++)
+	{
+		std::cout << i << std::endl;
+		ofImage* imgTemp = new ofImage();
+		imgTemp->loadImage("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/test.jpg");
+		_imgs.push_back(imgTemp);
+	}
+	*/
 }
 
 //--------------------------------------------------------------
@@ -27,6 +40,9 @@ void testApp::draw()
 
 	ofSetColor(255,255,255);
 	img.draw(300,100);
+
+	myFont.drawString("Coucou",100,100);
+
 
 }
 
