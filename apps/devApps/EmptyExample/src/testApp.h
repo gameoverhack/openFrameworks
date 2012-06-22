@@ -24,4 +24,5 @@ class testApp : public ofBaseApp{
 		ofSoundPlayer mySound;
 		ofTrueTypeFont myFont;
 		std::vector<ofImage*> _imgs;
+		ofVideoPlayer vid;
 };

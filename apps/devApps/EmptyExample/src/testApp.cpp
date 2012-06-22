@@ -3,8 +3,8 @@
 //--------------------------------------------------------------
 void testApp::setup()
 {
-
-	img.loadImage("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/test.jpg");
+	vid.loadMovie("C:/Users/gameover7/Desktop/test.mpg");
+	/*img.loadImage("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/test.jpg");
 	ofBackground(0,0,0);
 
 	mySound.loadSound("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/sounds/beat.wav");
@@ -12,7 +12,7 @@ void testApp::setup()
 	mySound.setVolume(0.1f);
 
 	//myFont.loadFont("C:/Projects/openFrameworksWIN64/apps/devApps/EmptyExample/bin/data/DidotLTStd-Roman.ttf",24);
-	myFont.loadFont("DidotLTStd-Roman.ttf",24);
+	myFont.loadFont("DidotLTStd-Roman.ttf",24);*/
 
 /*	for(int i=0; i<4000; i++)
 	{
@@ -26,7 +26,7 @@ void testApp::setup()
 
 //--------------------------------------------------------------
 void testApp::update(){
-
+	vid.update();
 }
 
 //--------------------------------------------------------------
@@ -43,7 +43,7 @@ void testApp::draw()
 
 	myFont.drawString("Coucou",100,100);
 
-
+	vid.draw(0,0);
 }
 
 //--------------------------------------------------------------
