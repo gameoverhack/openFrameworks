@@ -224,7 +224,8 @@ typedef TESSindex ofIndexType;
 		#ifdef TARGET_OF_IPHONE
 			#define OF_VIDEO_PLAYER_IPHONE
 		#elif !defined(TARGET_ANDROID)
-			#define OF_VIDEO_PLAYER_QUICKTIME
+			#define OF_VIDEO_PLAYER_GSTREAMER
+			//#define OF_VIDEO_PLAYER_QUICKTIME
 		#endif
 	#endif
 #endif

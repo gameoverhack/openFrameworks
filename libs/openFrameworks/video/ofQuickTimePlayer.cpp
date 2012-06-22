@@ -110,7 +110,7 @@ OSErr 	DrawCompleteProc(Movie theMovie, long refCon){
 ofQuickTimePlayer::ofQuickTimePlayer (){
 
 	//--------------------------------------------------------------
-   #if defined(TARGET_WIN32) || defined(TARGET_OSX)
+   #if defined(OF_VIDEO_PLAYER_QUICKTIME)
     //--------------------------------------------------------------
     	moviePtr	 				= NULL;
     	allocated 					= false;
@@ -358,6 +358,8 @@ bool ofQuickTimePlayer::loadMovie(string name){
 		return true;
 
 	//--------------------------------------
+	#else
+		return false;
 	#endif
 	//--------------------------------------
 
