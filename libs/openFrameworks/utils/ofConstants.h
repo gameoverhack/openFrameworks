@@ -4,6 +4,7 @@
 #define OF_VERSION	7
 #define OF_VERSION_MINOR 1
 //-------------------------------
+#define OF_VIDEO_PLAYER_GSTREAMER 1
 
 enum ofLoopType{
 	OF_LOOP_NONE=0x01,
