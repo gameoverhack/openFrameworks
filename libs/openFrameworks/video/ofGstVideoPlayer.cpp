@@ -32,7 +32,12 @@ bool ofGstVideoPlayer::loadMovie(string name){
 	if( name.find( "file://",0 ) != string::npos){
 		bIsStream		= false;
 	}else if( name.find( "://",0 ) == string::npos){
-		name 			= "file://"+ofToDataPath(name,true);
+#if defined (TARGET_OSX) || defined (TARGET_OS_WIN32)
+		name 			= "file:///"+name;
+#else // TARGET_LINUX
+        name 			= "file://"+ofToDataPath(name,true);
+#endif
+		
 		bIsStream		= false;
 	}else{
 		bIsStream		= true;

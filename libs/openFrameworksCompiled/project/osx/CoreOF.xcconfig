@@ -9,8 +9,8 @@ HEADER_TESS2 = "$(OF_PATH)/libs/tess2/include"
 HEADER_CAIRO = "$(OF_PATH)/libs/cairo/include/cairo"
 HEADER_RTAUDIO = "$(OF_PATH)/libs/rtAudio/include"
 
-GSTREAMER_PATH = "/Library/Frameworks/GStreamer.framework/Versions/0.10/x86/"
-HEADER_GSTREAMER = $(GSTREAMER_PATH)/include/gstreamer-0.10 $(GSTREAMER_PATH)/include/glib-2.0 $(GSTREAMER_PATH)/lib/glib-2.0/include $(GSTREAMER_PATH)/include/libxml2 $(GSTREAMER_PATH)/include/gtk-2.0 $(GSTREAMER_PATH)/lib/gtk-2.0/include $(GSTREAMER_PATH)/include/atk-1.0 $(GSTREAMER_PATH)/include/cairo $(GSTREAMER_PATH)/include/gdk-pixbuf-2.0 $(GSTREAMER_PATH)/include/pango-1.0 $(GSTREAMER_PATH)/include/pixman-1 $(GSTREAMER_PATH)/include/fontconfig $(GSTREAMER_PATH)/include/freetype2 $(GSTREAMER_PATH)/include/libpng15
+GSTREAMER_PATH = "$(OF_PATH)/libs/gstreamer/"
+HEADER_GSTREAMER = $(GSTREAMER_PATH)/include/gstreamer-0.10 $(GSTREAMER_PATH)/include/glib-2.0 $(GSTREAMER_PATH)/lib/osx/glib-2.0/include $(GSTREAMER_PATH)/include/libxml2 $(GSTREAMER_PATH)/include/gtk-2.0 $(GSTREAMER_PATH)/lib/osx/gtk-2.0/include $(GSTREAMER_PATH)/include/atk-1.0 $(GSTREAMER_PATH)/include/cairo $(GSTREAMER_PATH)/include/gdk-pixbuf-2.0 $(GSTREAMER_PATH)/include/pango-1.0 $(GSTREAMER_PATH)/include/pixman-1 $(GSTREAMER_PATH)/include/fontconfig $(GSTREAMER_PATH)/include/freetype2 $(GSTREAMER_PATH)/include/libpng15
 
 LIB_FMODEX = "$(OF_PATH)/libs/fmodex/lib/osx/libfmodex.dylib"
 LIB_GLUT = "$(OF_PATH)/libs/glut/lib/osx/GLUT.framework/Versions/A/GLUT"
@@ -33,8 +33,8 @@ LIB_CAIRO1 = "$(OF_PATH)/libs/cairo/lib/osx/cairo-script-interpreter.a"
 LIB_CAIRO2 = "$(OF_PATH)/libs/cairo/lib/osx/cairo.a"
 LIB_CAIRO3 = "$(OF_PATH)/libs/cairo/lib/osx/pixman-1.a"
 
-LIBRARY_SEARCH_PATHS = /Library/Frameworks/GStreamer.framework/Versions/0.10/x86/lib
-LIB_GSTREAMER = -lgstreamer-0.10 -lgobject-2.0 -lgmodule-2.0 -lgthread-2.0 -lxml2 -lglib-2.0 -lintl -lgstrtp-0.10 -lgstdataprotocol-0.10 -lgstnetbuffer-0.10 -lgstcheck-0.10 -lgstvideo-0.10 -lgstapp-0.10 -lgstriff-0.10 -lgstrtsp-0.10 -lgstsdp-0.10 -lgstaudio-0.10 -lgstinterfaces-0.10 -lgstpbutils-0.10 -lgstfft-0.10 -lgstcontroller-0.10 -lgstnet-0.10 -lgstcdda-0.10 -lgstbase-0.10 -lgsttag-0.10 -lgstreamer-0.10 -lgthread-2.0 -lxml2 -lgtk-quartz-2.0 -lgdk-quartz-2.0 -latk-1.0 -lgio-2.0 -lpangocairo-1.0 -lgdk_pixbuf-2.0 -lpango-1.0 -lcairo -lgmodule-2.0 -lgobject-2.0 -lglib-2.0 -lintl 
+LIBRARY_SEARCH_PATHS = /Library/Frameworks/GStreamer.framework/Versions/0.10/x86/lib/
+LIB_GSTREAMER = -lgstreamer-0.10.0 -lgobject-2.0.0 -lgmodule-2.0.0 -lgthread-2.0.0 -lxml2.2 -lglib-2.0.0 -lintl.8 -lgstrtp-0.10.0 -lgstdataprotocol-0.10.0 -lgstnetbuffer-0.10.0 -lgstcheck-0.10.0 -lgstvideo-0.10.0 -lgstapp-0.10.0 -lgstriff-0.10.0 -lgstrtsp-0.10.0 -lgstsdp-0.10.0 -lgstaudio-0.10.0 -lgstinterfaces-0.10.0 -lgstpbutils-0.10.0 -lgstfft-0.10.0 -lgstcontroller-0.10.0 -lgstnet-0.10.0 -lgstcdda-0.10.0 -lgstbase-0.10.0 -lgsttag-0.10.0 -lgtk-quartz-2.0.0 -lgdk-quartz-2.0.0 -latk-1.0.0 -lgio-2.0.0 -lpangocairo-1.0.0 -lgdk_pixbuf-2.0.0 -lpango-1.0.0 -lcairo.2
 
 OF_CORE_LIBS = $(LIB_POCO_1) $(LIB_POCO_2) $(LIB_POCO_3) $(LIB_POCO_4) $(LIB_POCO_5) $(LIB_POCO_6) $(LIB_POCO_7) $(LIB_POCO_8) $(LIB_POCO_9) $(LIB_POCO_10) $(LIB_TESS) $(LIB_GLEW) $(LIB_CAIRO1) $(LIB_CAIRO2) $(LIB_CAIRO3) $(LIB_FMODEX) $(LIB_RTAUDIO) $(LIB_GSTREAMER)
 OF_CORE_HEADERS = $(HEADER_OF) $(HEADER_POCO) $(HEADER_FREETYPE) $(HEADER_FREETYPE2) $(HEADER_FMODEX) $(HEADER_GLEW) $(HEADER_FREEIMAGE) $(HEADER_TESS2) $(HEADER_CAIRO) $(HEADER_RTAUDIO) $(HEADER_GSTREAMER)
