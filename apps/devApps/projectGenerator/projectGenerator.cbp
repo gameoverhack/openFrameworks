@@ -110,6 +110,8 @@
 			<Add library="ws2_32" />
 			<Add library="Iphlpapi" />
 			<Add library="Comdlg32" />
+			<Add library="png" />
+			<Add directory="..\..\..\libs\cairo\lib\win_cb" />
 		</Linker>
 		<ExtraCommands>
 			<Add after='xcopy /e /i /y &quot;$(PROJECT_DIR)..\..\..\export\win_cb\*.dll&quot;  &quot;$(PROJECT_DIR)bin&quot;' />

@@ -44,6 +44,7 @@
 			<Add directory="..\..\..\videoInput\include" />
 			<Add directory="..\..\..\glew\include" />
 			<Add directory="..\..\..\glut\include" />
+			<Add directory="..\..\..\cairo\include\libpng15" />
 			<Add directory="..\..\..\cairo\include\cairo" />
 			<Add directory="..\..\..\openFrameworks" />
 			<Add directory="..\..\..\openFrameworks\app" />
