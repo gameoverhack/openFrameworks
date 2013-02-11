@@ -1,50 +1,50 @@
-#include "ofThread.h" 
+#include "ofThread.h"
 
 #include "ofLog.h"
 #include "ofUtils.h"
 
-//------------------------------------------------- 
-ofThread::ofThread(){ 
+//-------------------------------------------------
+ofThread::ofThread(){
    threadRunning = false;
    verbose = false;
    thread.setName("Thread "+ofToString(thread.id()));
-} 
+}
 
-//------------------------------------------------- 
-ofThread::~ofThread(){ 
+//-------------------------------------------------
+ofThread::~ofThread(){
    stopThread(true);
-} 
+}
 
-//------------------------------------------------- 
-bool ofThread::isThreadRunning(){ 
+//-------------------------------------------------
+bool ofThread::isThreadRunning(){
    return threadRunning;
 }
 
-//------------------------------------------------- 
+//-------------------------------------------------
 int ofThread::getThreadId(){
 	return thread.id();
 }
 
-//------------------------------------------------- 
+//-------------------------------------------------
 string ofThread::getThreadName(){
 	return thread.name();
 }
 
-//------------------------------------------------- 
-void ofThread::startThread(bool blocking, bool verbose){
+//-------------------------------------------------
+bool ofThread::startThread(bool blocking, bool verbose){
 
-	if(thread.isRunning()){ 
+	if(thread.isRunning()){
 		ofLogWarning(thread.name()) << "cannot start, thread already running";
-		return; 
-	} 
+		return false;
+	}
 
-	// have to put this here because the thread can be running 
-	// before the call to create it returns 
-	threadRunning = true; 
+	// have to put this here because the thread can be running
+	// before the call to create it returns
+	threadRunning = true;
 
 	this->blocking = blocking;
 	this->verbose = verbose;
-	
+
 	if(verbose){
 		ofSetLogLevel(thread.name(), OF_LOG_VERBOSE);
 	}
@@ -53,10 +53,12 @@ void ofThread::startThread(bool blocking, bool verbose){
 	}
 
 	thread.start(*this);
-} 
 
-//------------------------------------------------- 
-bool ofThread::lock(){ 
+	return true;
+}
+
+//-------------------------------------------------
+bool ofThread::lock(){
 
 	if(blocking){
 		if(verbose){
@@ -71,11 +73,11 @@ bool ofThread::lock(){
 	}
 	else{
 		if(!mutex.tryLock()){
-			ofLogVerbose(thread.name()) << "mutex is busy - already locked"; 
-			return false; 
+			ofLogVerbose(thread.name()) << "mutex is busy - already locked";
+			return false;
 		}
 	}
-	
+
 	if(verbose){
 		if(Poco::Thread::current() == &thread){
 			ofLogVerbose(thread.name()) << "thread locked own mutex";
@@ -84,14 +86,14 @@ bool ofThread::lock(){
 			ofLogVerbose(thread.name()) << "external locked thread mutex";
 		}
 	}
-	
-	return true; 
-} 
 
-//------------------------------------------------- 
-void ofThread::unlock(){ 
+	return true;
+}
+
+//-------------------------------------------------
+void ofThread::unlock(){
 	mutex.unlock();
-	
+
 	if(verbose){
 		if(Poco::Thread::current() == &thread){
 			ofLogVerbose(thread.name()) << "thread unlocked own mutex";
@@ -100,10 +102,10 @@ void ofThread::unlock(){
 			ofLogVerbose(thread.name()) << "external unlocked thread mutex";
 		}
 	}
-	return; 
-} 
+	return;
+}
 
-//------------------------------------------------- 
+//-------------------------------------------------
 void ofThread::stopThread(bool close){
 	if(thread.isRunning()) {
 		threadRunning = false;
@@ -116,13 +118,13 @@ void ofThread::stopThread(bool close){
 //-------------------------------------------------
 void ofThread::waitForThread(bool stop){
 	if(thread.isRunning()){
-		
+
 		// tell thread to stop
 		if(stop){
 			threadRunning = false;
 			ofLogVerbose(thread.name()) << "signaled to stop";
 		}
-		
+
 		// wait for the thread to finish
 		ofLogVerbose(thread.name()) << "waiting to stop";
 		if(Poco::Thread::current() == &thread){
@@ -173,12 +175,12 @@ void ofThread::threadedFunction(){
 // PRIVATE
 //-------------------------------------------------
 void ofThread::run(){
-	
+
 	ofLogVerbose(thread.name()) << "started";
-	
+
 	// user function
 	threadedFunction();
-	
+
 	threadRunning = false;
 	ofLogVerbose(thread.name()) << "stopped";
 }

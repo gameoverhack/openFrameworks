@@ -12,29 +12,29 @@
 class ofThread : protected Poco::Runnable{
 
 	public:
-	
+
 		ofThread();
 		virtual ~ofThread();
-	
+
 		/// returns true if the thread is currently running
 		bool isThreadRunning();
-		
+
 		/// get the unique thread id
 		///
 		/// note: this is *not* the OS thread id!
 		int getThreadId();
-		
+
 		/// get the unique thread name, in the form of "Thread id#"
 		string getThreadName();
-		
+
 		/// start the thread
 		///
 		/// set blocking to true if you want the mutex to block on lock()
 		///
 		/// set verbose to true if you want detailed logging on thread and mutex
 		/// events
-		void startThread(bool blocking = true, bool verbose = false);
-		
+		bool startThread(bool blocking = true, bool verbose = false);
+
 		/// try to lock the mutex
 		///
 		/// if the thread is blocking, this call will wait until the mutex is
@@ -43,13 +43,13 @@ class ofThread : protected Poco::Runnable{
 		/// if the thread is non-blocking, this call will return a true or false
 		/// if the mutex is available
 		bool lock();
-		
+
 		/// unlock the mutex
 		///
 		/// only unlocks the mutex if it had been locked previously by the
 		/// calling thread
 		void unlock();
-		
+
 		/// stop the thread
 		///
 		/// set close to true if you want the thread to exit immediately
@@ -58,7 +58,7 @@ class ofThread : protected Poco::Runnable{
 		/// have it stop immediately, you will need to wait for it to finish
 		/// manually by calling waitForThread()
 		void stopThread(bool close = true);
-		
+
 		/// wait for the thread to exit
 		///
 		/// this function waits for the thread to exit before it returns to make
@@ -67,11 +67,11 @@ class ofThread : protected Poco::Runnable{
 		/// set stop to true if you want to signal the thread to exit before
 		/// waiting, this is the equivalent to calling stopThread(false)
 		///
-		/// set stop to false if you have already signalled the thread to exit 
+		/// set stop to false if you have already signalled the thread to exit
 		/// by calling stopThread(false) and only need to wait for it to finish
 		///
 		void waitForThread(bool stop = true);
-		
+
 		/// tell the thread to sleep for a certain amount of milliseconds
 		///
 		/// this is useful inside the threadedFunction() when a thread is
@@ -90,7 +90,7 @@ class ofThread : protected Poco::Runnable{
 		///				bReadyToProcess = false;
 		///			}
 		///			else{
-		///				
+		///
 		///				// sleep the thread to give up some cpu
 		///				sleep(20);
 		///			}
@@ -100,10 +100,10 @@ class ofThread : protected Poco::Runnable{
 		///	}
 		///
 		/// not sleeping the thread means the thread will take 100% of the cpu
-		/// while it's waiting and will impact performance of your app 
+		/// while it's waiting and will impact performance of your app
 		///
 		void sleep(int sleepMS);
-		
+
 		/// tell the thread to give up the cpu to other threads
 		///
 		/// this function is similar to sleep() and can be used in the same way,
@@ -114,7 +114,7 @@ class ofThread : protected Poco::Runnable{
 		/// this can be faster in some circumstances
 		///
 		void yield();
-		
+
 		/// in multithreaded situations, it can be useful to know which thread
 		/// is currently running some code in order to make sure only certain
 		/// threads can do certain things ...
@@ -129,13 +129,13 @@ class ofThread : protected Poco::Runnable{
 		///    // pheew! ok, update those graphics resources
 		/// }
 		///
-		
+
 		/// returns true if this the currently active thread
 		bool isCurrentThread();
-		
+
 		/// returns true if the main app thread is the currently active thread
 		static bool isMainThread();
-		
+
 		/// get the current thread, returns NULL if in the main app thread
 		///
 		/// this is useful if you want to access the currently active thread:
@@ -154,13 +154,13 @@ class ofThread : protected Poco::Runnable{
 
 		/// this is the thread run function
 		///
-		/// you need to overide this in your derived class and implement your 
+		/// you need to overide this in your derived class and implement your
 		/// thread stuff inside
 		///
 		/// if you do not have a loop inside this function, it will run once
 		/// then exit
 		///
-		/// if you want the thread to run until you signal it to stop, use a 
+		/// if you want the thread to run until you signal it to stop, use a
 		/// while loop inside that checks if the thread is should keep running:
 		///
 		/// void myClass::threadedFunction(){
@@ -176,18 +176,18 @@ class ofThread : protected Poco::Runnable{
 		///	}
 		///
 		virtual void threadedFunction();
-		
+
 		/// the internal mutex called through lock() & unlock()
 		ofMutex mutex;
 
 		bool threadRunning; ///< is the thread running?
 		bool blocking; ///< should the mutex block?
 		bool verbose; ///< print detailed run/mutex info?
-	
+
 	private:
-	
+
 		/// runs the user thread function
-		void run(); 
-		
+		void run();
+
 		Poco::Thread thread;
 };
