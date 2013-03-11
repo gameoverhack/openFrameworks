@@ -53,7 +53,7 @@ public:
 #endif
 		glType = GL_RGB;
 		pixelType = GL_UNSIGNED_BYTE;
-		
+
 
 		tex_t = 0;
 		tex_u = 0;
@@ -61,7 +61,7 @@ public:
 		tex_h = 0;
 		width = 0;
 		height = 0;
-		
+
 		bFlipTexture = false;
 		compressionType = OF_COMPRESS_NONE;
 		bAllocated = false;
@@ -73,17 +73,17 @@ public:
 	int glTypeInternal; // internalFormat, e.g., GL_RGB8.
 	int glType; // format, e.g., GL_RGB. should be named glFormat
 	int pixelType;  // type, e.g., GL_UNSIGNED_BYTE. should be named glType
-	
+
 	float tex_t;
 	float tex_u;
 	float tex_w;
 	float tex_h;
 	float width, height;
-	
+
 	bool bFlipTexture;
 	ofTexCompression compressionType;
 	bool bAllocated;
-	bool bUseExternalTextureID; //if you need to assign ofTexture's id to an externally texture. 
+	bool bUseExternalTextureID; //if you need to assign ofTexture's id to an externally texture.
 };
 
 //enable / disable the slight offset we add to ofTexture's texture coords to compensate for bad edge artifiacts
@@ -107,16 +107,16 @@ class ofTexture : public ofBaseDraws {
 	virtual void allocate(const ofPixels& pix);
 	void clear();
 
-	void setUseExternalTextureID(GLuint externTexID); //allows you to point ofTexture's texture id to an externally allocated id. 
-													  //its up to you to set the rest of the textData params manually. 
+	void setUseExternalTextureID(GLuint externTexID); //allows you to point ofTexture's texture id to an externally allocated id.
+													  //its up to you to set the rest of the textData params manually.
 
 	void loadData(const unsigned char* const data, int w, int h, int glFormat);
 	void loadData(const unsigned short* data, int w, int h, int glFormat);
 	void loadData(const float* data, int w, int h, int glFormat);
-	void loadData(const ofPixels & pix);		
+	void loadData(const ofPixels & pix);
 	void loadData(const ofShortPixels & pix);
 	void loadData(const ofFloatPixels & pix);
-	
+
 	void loadScreenData(int x, int y, int w, int h);
 
 	//the anchor is the point the image is drawn around.
@@ -131,7 +131,7 @@ class ofTexture : public ofBaseDraws {
 	void draw(float x, float y, float z);
 	void draw(float x, float y, float w, float h);
 	void draw(float x, float y, float z, float w, float h);
-	
+
 	void drawSubsection(float x, float y, float w, float h, float sx, float sy);
 	void drawSubsection(float x, float y, float z, float w, float h, float sx, float sy);
 	void drawSubsection(float x, float y, float w, float h, float sx, float sy, float sw, float sh);
@@ -144,13 +144,13 @@ class ofTexture : public ofBaseDraws {
 	//for the advanced user who wants to draw textures in their own way
 	void bind();
 	void unbind();
-	
-	// these are helpers to allow you to get points for the texture ala "glTexCoordf" 
-	// but are texture type independent. 
+
+	// these are helpers to allow you to get points for the texture ala "glTexCoordf"
+	// but are texture type independent.
 	// use them for immediate or non immediate mode
-	ofPoint getCoordFromPoint(float xPos, float yPos);		
-	ofPoint getCoordFromPercent(float xPts, float yPts);		
-	
+	ofPoint getCoordFromPoint(float xPos, float yPos);
+	ofPoint getCoordFromPercent(float xPts, float yPts);
+
 	void setTextureWrap(GLint wrapModeHorizontal, GLint wrapModeVertical);
 	void setTextureMinMagFilter(GLint minFilter, GLint maxFilter);
 

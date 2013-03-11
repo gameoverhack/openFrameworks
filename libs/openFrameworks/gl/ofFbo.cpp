@@ -25,11 +25,11 @@
 #ifndef TARGET_OPENGLES
 	#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS			GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT
 	#define GL_FRAMEBUFFER_INCOMPLETE_FORMATS				GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT
-	
+
 	#ifndef GL_UNSIGNED_INT_24_8
 		#define GL_UNSIGNED_INT_24_8						GL_UNSIGNED_INT_24_8_EXT
 	#endif
-	
+
 	/*#define glGenFramebuffers								glGenFramebuffersEXT
 	#define glGenRenderbuffers								glGenRenderbuffersEXT
 	#define	glDeleteFramebuffers							glDeleteFramebuffersEXT
@@ -102,11 +102,11 @@
 	#define GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE			GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE_OES
 	#define GL_COLOR_ATTACHMENT0							GL_COLOR_ATTACHMENT0_OES
 	#define GL_UNSIGNED_INT_24_8							GL_UNSIGNED_INT_24_8_OES
-    
+
 	#define GL_DEPTH24_STENCIL8								GL_DEPTH24_STENCIL8_OES
 	#define GL_DEPTH_COMPONENT16							GL_DEPTH_COMPONENT16_OES
 	#define GL_DEPTH_COMPONENT24							GL_DEPTH_COMPONENT24_OES
-	#ifdef GL_DEPTH_COMPONENT32_OES 
+	#ifdef GL_DEPTH_COMPONENT32_OES
         #define GL_DEPTH_COMPONENT32						GL_DEPTH_COMPONENT32_OES
     #endif
 	#ifdef TARGET_OF_IPHONE
@@ -129,7 +129,7 @@ ofFbo::Settings::Settings() {
 #else
 	textureTarget			= GL_TEXTURE_2D;
 #endif
-	internalformat			= GL_RGBA;
+	internalformat			= GL_BGRA;
 	depthStencilInternalFormat		= GL_DEPTH_COMPONENT24;
 	wrapModeHorizontal		= GL_CLAMP_TO_EDGE;
 	wrapModeVertical		= GL_CLAMP_TO_EDGE;
@@ -392,19 +392,19 @@ void ofFbo::allocate(int width, int height, int internalformat, int numSamples) 
 	settings.height			= height;
 	settings.internalformat	= internalformat;
 	settings.numSamples		= numSamples;
-    
+
 #ifdef TARGET_OPENGLES
 	settings.useDepth		= false;
 	settings.useStencil		= false;
 	//we do this as the fbo and the settings object it contains could be created before the user had the chance to disable or enable arb rect.
     settings.textureTarget	= GL_TEXTURE_2D;
-#else    
+#else
 	settings.useDepth		= true;
 	settings.useStencil		= true;
-	//we do this as the fbo and the settings object it contains could be created before the user had the chance to disable or enable arb rect. 	
-    settings.textureTarget	= ofGetUsingArbTex() ? GL_TEXTURE_RECTANGLE_ARB : GL_TEXTURE_2D;    
-#endif 
-    
+	//we do this as the fbo and the settings object it contains could be created before the user had the chance to disable or enable arb rect.
+    settings.textureTarget	= ofGetUsingArbTex() ? GL_TEXTURE_RECTANGLE_ARB : GL_TEXTURE_2D;
+#endif
+
 	allocate(settings);
 }
 
@@ -433,7 +433,7 @@ void ofFbo::allocate(Settings _settings) {
 		settings.numSamples = 0;
 	}
 
-	//currently depth only works if stencil is enabled. 
+	//currently depth only works if stencil is enabled.
 	// http://forum.openframeworks.cc/index.php/topic,6837.0.html
 #ifdef TARGET_OPENGLES
 	if(settings.useDepth){
@@ -444,7 +444,7 @@ void ofFbo::allocate(Settings _settings) {
         ofLogWarning("ofFbo") << "ofFbo::Settings depthStencilAsTexture is not available for iOS" << endl;
     }
 #endif
-    
+
 	GLenum depthAttachment = GL_DEPTH_ATTACHMENT;
 	GLint depthPixelType = GL_UNSIGNED_SHORT;
 	GLint depthFormat = GL_DEPTH_COMPONENT;
@@ -465,11 +465,11 @@ void ofFbo::allocate(Settings _settings) {
 		}else if(settings.depthStencilInternalFormat==GL_DEPTH_COMPONENT24){
 			depthPixelType = GL_UNSIGNED_INT;
 		}
-        #ifdef GL_DEPTH_COMPONENT32 
+        #ifdef GL_DEPTH_COMPONENT32
         else if(settings.depthStencilInternalFormat==GL_DEPTH_COMPONENT32){
 			depthPixelType = GL_UNSIGNED_INT;
 		}
-		#endif 
+		#endif
 		depthAttachment = GL_DEPTH_ATTACHMENT;
 		depthFormat = GL_DEPTH_COMPONENT;
 	}else if(settings.useStencil){
@@ -484,7 +484,7 @@ void ofFbo::allocate(Settings _settings) {
 		if(settings.useDepth && settings.useStencil){
 			stencilBuffer = depthBuffer = createAndAttachRenderbuffer(settings.depthStencilInternalFormat, depthAttachment);
 			retainRB(stencilBuffer);
-			retainRB(depthBuffer);	
+			retainRB(depthBuffer);
 		}else if(settings.useDepth){
 			depthBuffer = createAndAttachRenderbuffer(settings.depthStencilInternalFormat, depthAttachment);
 			retainRB(depthBuffer);
@@ -584,7 +584,7 @@ void ofFbo::createAndAttachTexture(GLenum attachmentPoint) {
 }
 
 void ofFbo::createAndAttachDepthStencilTexture(GLenum target, GLint internalformat, GLenum format, GLenum type, GLenum  attachment){
-	
+
 	// allocate depthBufferTex as depth buffer;
 	depthBufferTex.texData.glTypeInternal = internalformat;
 	depthBufferTex.texData.glType = format;
@@ -593,9 +593,9 @@ void ofFbo::createAndAttachDepthStencilTexture(GLenum target, GLint internalform
 	depthBufferTex.texData.bFlipTexture = false;
 	depthBufferTex.texData.width = settings.width;
 	depthBufferTex.texData.height = settings.height;
-	
-	//TODO: a bit of a hack for now as we don't know 100% what will be overridden by ofTexture::allocate( ofTextureData & data ); 
-	//but at the moment it seems to work well and resulted in some fixes for the ofTexture::allocate method 
+
+	//TODO: a bit of a hack for now as we don't know 100% what will be overridden by ofTexture::allocate( ofTextureData & data );
+	//but at the moment it seems to work well and resulted in some fixes for the ofTexture::allocate method
 	depthBufferTex.allocate(depthBufferTex.texData);
 
 	glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, target, depthBufferTex.texData.textureID, 0);
@@ -721,7 +721,7 @@ ofTexture& ofFbo::getTextureReference(int attachmentPoint) {
     	ref.texData.tex_t = ref.getWidth();
     	ref.texData.tex_u = ref.getHeight();
     }
-    
+
     return ref;
 }
 void ofFbo::setAnchorPercent(float xPct, float yPct){
