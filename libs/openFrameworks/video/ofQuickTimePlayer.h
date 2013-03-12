@@ -3,9 +3,23 @@
 #include "ofConstants.h"
 #include "ofBaseTypes.h"
 #include "ofPixels.h"
+#include <map.h>
 
 #ifdef OF_VIDEO_PLAYER_QUICKTIME
 	#include "ofQtUtils.h"
+
+struct qtAudioDevice{
+    string deviceName;
+    string deviceManufacturer;
+    int deviceID;
+    int internalDeviceID;
+    CFStringRef deviceUID;
+    int inputStreamCount;
+    int outputStreamCount;
+};
+
+static vector<string> qtAudioDeviceList;
+static map<string, qtAudioDevice> qtAudioDeviceMap;
 
 class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
@@ -45,6 +59,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 float			getSpeed();
 		 bool			getIsMovieDone();
 		 ofLoopType 	getLoopState();
+         vector<string> getAudioDevices();
 
 		 void 			setPosition(float pct);
 		 void 			setVolume(float volume);
@@ -52,7 +67,9 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 void   		setSpeed(float speed);
 		 void			setFrame(int frame);  // frame 0 = first frame...
 		 void 			setPaused(bool bPause);
-
+         bool           setAudioDevice(int ID);
+         bool           setAudioDevice(string deviceName);
+    
 		 int			getCurrentFrame();
 
 		 void			firstFrame();
@@ -65,6 +82,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		
 	protected:
 		void createImgMemAndGWorld();
+        bool createAudioContext(qtAudioDevice qtDevice);
 		void start();
 
 		ofPixels		 	pixels;

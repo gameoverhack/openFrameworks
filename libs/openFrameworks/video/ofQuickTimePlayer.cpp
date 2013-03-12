@@ -708,6 +708,169 @@ ofPixelFormat ofQuickTimePlayer::getPixelFormat(){
 	return OF_PIXELS_RGB;
 }
 
+//---------------------------------------------------------------------------
+vector<string> ofQuickTimePlayer::getAudioDevices(){
+    
+    if(qtAudioDeviceList.size() == 0){
+        
+        // taken from http://www.rawmaterialsoftware.com/viewtopic.php?t=9837&p=61685
+        // and http://stackoverflow.com/questions/4575408/audioobjectgetpropertydata-to-get-a-list-of-input-devices
+        
+        AudioObjectPropertyAddress  propertyAddress;
+        AudioObjectID               *deviceIDs;
+        UInt32                      propertySize;
+        int                         numDevices;
+        
+        propertyAddress.mSelector = kAudioHardwarePropertyDevices;
+        propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+        propertyAddress.mElement = kAudioObjectPropertyElementMaster;
+        
+        if(AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize) == noErr){
+            
+            numDevices = propertySize / sizeof(AudioDeviceID);
+            deviceIDs = (AudioDeviceID *)calloc(numDevices, sizeof(AudioDeviceID));
+            
+            AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize, deviceIDs);
+            
+            AudioObjectPropertyAddress      deviceAddress;
+            char                            deviceName[64];
+            char                            manufacturerName[64];
+            
+            for(int idx=0; idx<numDevices; idx++){
+                
+                // check for device name
+                propertySize = sizeof(deviceName);
+                deviceAddress.mSelector = kAudioDevicePropertyDeviceName;
+                deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+                deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+                
+                AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, deviceName);
+                
+                // check for device manufacturer
+                propertySize = sizeof(manufacturerName);
+                deviceAddress.mSelector = kAudioDevicePropertyDeviceManufacturer;
+                deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+                deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+                
+                AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, manufacturerName);
+                
+                // check for device uid
+                CFStringRef uidString;
+                propertySize = sizeof(uidString);
+                deviceAddress.mSelector = kAudioDevicePropertyDeviceUID;
+                deviceAddress.mScope = kAudioObjectPropertyScopeGlobal;
+                deviceAddress.mElement = kAudioObjectPropertyElementMaster;
+                
+                AudioObjectGetPropertyData(deviceIDs[idx], &deviceAddress, 0, NULL, &propertySize, &uidString);
+                
+                // check for device with inputs
+                deviceAddress.mSelector   = kAudioDevicePropertyStreams;
+                deviceAddress.mScope = kAudioDevicePropertyScopeInput;
+                UInt32 inputDataSize = 0;
+                int inputStreams = 0;
+                
+                AudioObjectGetPropertyDataSize(deviceIDs[idx], &deviceAddress, 0, NULL, &inputDataSize);
+                
+                inputStreams = inputDataSize / sizeof(AudioStreamID);
+                
+                // check for device with inputs
+                deviceAddress.mSelector   = kAudioDevicePropertyStreams;
+                deviceAddress.mScope = kAudioDevicePropertyScopeOutput;
+                UInt32 outputDataSize = 0;
+                int outputStreams = 0;
+                
+                AudioObjectGetPropertyDataSize(deviceIDs[idx], &deviceAddress, 0, NULL, &outputDataSize);
+                
+                outputStreams = outputDataSize / sizeof(AudioStreamID);
+                
+                qtAudioDevice qtDevice;
+                qtDevice.deviceName = deviceName;
+                qtDevice.deviceManufacturer = manufacturerName;
+                qtDevice.deviceID = idx;
+                qtDevice.internalDeviceID = deviceIDs[idx];
+                qtDevice.deviceUID = uidString;
+                qtDevice.inputStreamCount = inputStreams;
+                qtDevice.outputStreamCount = outputStreams;
+                
+                qtAudioDeviceList.push_back(qtDevice.deviceName);
+                qtAudioDeviceMap.insert(pair<string, qtAudioDevice>(qtDevice.deviceName, qtDevice));
+                
+                ofLogNotice()   << "QT Audio deviceID [" << qtDevice.deviceID 
+                                << "] name: " << qtDevice.deviceName 
+                                << " manufacturer: " << qtDevice.deviceManufacturer 
+                                << " internal ID: " << qtDevice.internalDeviceID 
+                                << " UID: " << qtDevice.deviceUID 
+                                << " input streams: " << qtDevice.inputStreamCount 
+                                << " output streams " << qtDevice.outputStreamCount;
+            }
+            
+        }else{
+            ofLogError() << "Can't access audio device lists";
+        }
+    }else{
+        
+        for(int i = 0; i < qtAudioDeviceList.size(); i++){
+            qtAudioDevice qtDevice = qtAudioDeviceMap[qtAudioDeviceList[i]];
+            ofLogNotice()   << "QT Audio deviceID [" << qtDevice.deviceID 
+                            << "] name: " << qtDevice.deviceName 
+                            << " manufacturer: " << qtDevice.deviceManufacturer 
+                            << " internal ID: " << qtDevice.internalDeviceID 
+                            << " UID: " << qtDevice.deviceUID 
+                            << " input streams: " << qtDevice.inputStreamCount 
+                            << " output streams " << qtDevice.outputStreamCount;
+        }
+        
+    }
+    
+    return qtAudioDeviceList;
+    
+}
+
+//---------------------------------------------------------------------------
+bool ofQuickTimePlayer::setAudioDevice(int ID){
+    if(qtAudioDeviceList.size() == 0){
+        if(getAudioDevices().size() == 0){
+            ofLogError() << "ofQuickTimePlayer::setAudioDevice: No quicktime audio devices found";
+            return false;
+        }
+    }
+    if(ID < qtAudioDeviceList.size()){
+        return createAudioContext(qtAudioDeviceMap[qtAudioDeviceList[ID]]);
+    }else{
+        ofLogError() << "ofQuickTimePlayer::setAudioDevice: No quicktime device with this ID: " << ID;
+        return false;
+    }
+}
+
+//---------------------------------------------------------------------------
+bool ofQuickTimePlayer::setAudioDevice(string deviceName){
+    if(qtAudioDeviceList.size() == 0){
+        if(getAudioDevices().size() == 0){
+            ofLogError() << "ofQuickTimePlayer::setAudioDevice: No quicktime audio devices found";
+            return false;
+        }
+    }
+    if(qtAudioDeviceMap.find(deviceName) != qtAudioDeviceMap.end()){
+        return createAudioContext(qtAudioDeviceMap[deviceName]);
+    }else{
+        ofLogError() << "ofQuickTimePlayer::setAudioDevice: No quicktime device with this name: " << deviceName;
+        return false;
+    }
+}
+
+//---------------------------------------------------------------------------
+bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
+    
+    QTAudioContextRef audioContext = NULL;
+    if(QTAudioContextCreateForAudioDevice(kCFAllocatorDefault, qtDevice.deviceUID, /*options*/ NULL, &audioContext) == noErr){
+        SetMovieAudioContext(moviePtr, audioContext);
+        return true;
+    }else{
+        ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
+        return false;
+    }
+    
+}
 
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::getIsMovieDone(){

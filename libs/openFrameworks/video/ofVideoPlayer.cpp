@@ -44,6 +44,21 @@ bool ofVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat) {
 	return true;
 }
 
+//--------------------------------------------------------------------
+vector<string> ofVideoPlayer::getAudioDevices(){
+    return player->getAudioDevices();
+}
+
+//---------------------------------------------------------------------------
+bool ofVideoPlayer::setAudioDevice(int ID){
+    return player->setAudioDevice(ID);
+}
+
+//---------------------------------------------------------------------------
+bool ofVideoPlayer::setAudioDevice(string deviceName){
+    return player->setAudioDevice(deviceName);
+}
+
 //---------------------------------------------------------------------------
 ofPixelFormat ofVideoPlayer::getPixelFormat(){
 	if( player != NULL ){
