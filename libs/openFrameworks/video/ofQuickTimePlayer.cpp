@@ -863,12 +863,13 @@ bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     
     QTAudioContextRef audioContext = NULL;
     if(QTAudioContextCreateForAudioDevice(kCFAllocatorDefault, qtDevice.deviceUID, /*options*/ NULL, &audioContext) == noErr){
-        SetMovieAudioContext(moviePtr, audioContext);
-        return true;
-    }else{
-        ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
-        return false;
+        if(SetMovieAudioContext(moviePtr, audioContext) == noErr){
+            return true;
+        }
     }
+    // should only get here on error
+    ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
+    return false;
     
 }
 
