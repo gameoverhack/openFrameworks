@@ -254,6 +254,9 @@ public:
 	virtual float 				getSpeed();
 	virtual float 				getDuration();
 	virtual bool				getIsMovieDone();
+    
+    virtual vector<string>      getAudioDevices();
+    virtual int                 getAudioTrackList();
 	
 	virtual void 				setPaused(bool bPause);
 	virtual void 				setPosition(float pct);
@@ -261,7 +264,12 @@ public:
 	virtual void 				setLoopState(ofLoopType state);
 	virtual void   				setSpeed(float speed);
 	virtual void				setFrame(int frame);  // frame 0 = first frame...
-	
+    
+    virtual bool                setAudioDevice(int ID);
+    virtual bool                setAudioDevice(string deviceName);
+    
+    virtual bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
+    
 	virtual int					getCurrentFrame();
 	virtual int					getTotalNumFrames();
 	virtual ofLoopType			getLoopState();

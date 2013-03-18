@@ -70,6 +70,37 @@ bool ofBaseVideoPlayer::getIsMovieDone(){
 }
 
 //---------------------------------------------------------------------------
+vector<string> ofBaseVideoPlayer::getAudioDevices(){
+	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getAudioDevices not implemented");
+    vector<string> emptyVec;
+	return emptyVec;
+}
+
+//---------------------------------------------------------------------------
+int ofBaseVideoPlayer::getAudioTrackList(){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getAudioTrackList not implemented");
+    return 0;
+}
+
+//---------------------------------------------------------------------------
+bool ofBaseVideoPlayer::setAudioDevice(int ID){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioDevice not implemented");
+    return false;
+}
+
+//---------------------------------------------------------------------------
+bool ofBaseVideoPlayer::setAudioDevice(string deviceName){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioDevice not implemented");
+    return false;
+}
+
+//---------------------------------------------------------------------------
+bool ofBaseVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioTrackToChannel not implemented");
+    return false;
+}
+
+//---------------------------------------------------------------------------
 void ofBaseVideoPlayer::setPaused(bool bPause){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setPaused not implemented");
 }
