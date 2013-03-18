@@ -184,7 +184,7 @@ protected:
 	void setSerializable(bool serializable);
 
 #if defined(TARGET_OSX) || (_MSC_VER)
-	friend typename FriendMaker<Friend>::Type;
+	//friend typename FriendMaker<Friend>::Type;
 #else
 	friend class FriendMaker<Friend>::Type;
 #endif

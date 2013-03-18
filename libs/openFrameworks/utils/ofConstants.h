@@ -59,7 +59,7 @@ enum ofTargetPlatform{
 	#else
 		#define TARGET_OSX
 	#endif
-#elif defined (__ANDROID__)
+#elif defined (ANDROID)
 	#define TARGET_ANDROID
 	#define TARGET_OPENGLES
 #else
@@ -432,7 +432,11 @@ enum ofPixelFormat{
 	OF_PIXELS_RGB,
 	OF_PIXELS_RGBA,
 	OF_PIXELS_BGRA,
-	OF_PIXELS_RGB565
+    OF_PIXELS_ABGR,
+    OF_PIXELS_ARGB,
+    OF_PIXELS_2YUV,
+    OF_PIXELS_RGB565,
+    OF_PIXELS_UNDEFINED
 };
 
 #define		OF_MAX_STYLE_HISTORY	32

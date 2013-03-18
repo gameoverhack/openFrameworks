@@ -24,6 +24,7 @@ ofPtr<ofBaseVideoPlayer> ofVideoPlayer::getPlayer(){
 //if the movie is already loaded then we can't update the format.
 //also if the format is not supported we get the format from the player instead.
 //--------------------------------------------------------------------
+
 bool ofVideoPlayer::setPixelFormat(ofPixelFormat pixelFormat) {
 	if( player != NULL ){
 		if( player->isLoaded() ){
@@ -138,7 +139,7 @@ void ofVideoPlayer::update(){
 
 		player->update();
 		
-		if( bUseTexture && player->isFrameNew() ) {
+		if(bUseTexture && player->isFrameNew()){
 			
 			playerTex = player->getTexture();
 			

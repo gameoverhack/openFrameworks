@@ -24,6 +24,7 @@ int ofGetGlFormat(const T& pix) {
 int ofGetGlInternalFormat(const ofPixels& pix) {
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -34,6 +35,7 @@ int ofGetGlInternalFormat(const ofShortPixels& pix) {
 #ifndef TARGET_OPENGLES
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB16;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA16;
 		default: return GL_LUMINANCE16;
 	}
@@ -41,6 +43,7 @@ int ofGetGlInternalFormat(const ofShortPixels& pix) {
 	ofLogWarning()<< "16bit textures not supported in GLES";
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -52,6 +55,7 @@ int ofGetGlInternalFormat(const ofFloatPixels& pix) {
 #ifndef TARGET_OPENGLES
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB32F_ARB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA32F_ARB;
 		default: return GL_LUMINANCE32F_ARB;
 	}
@@ -59,6 +63,7 @@ int ofGetGlInternalFormat(const ofFloatPixels& pix) {
 	ofLogWarning()<< "float textures not supported in GLES";
 	switch(pix.getNumChannels()) {
 		case 3: return GL_RGB;
+        // TODO: How do we distinguish GL_BGRA from GL_RGBA?
 		case 4: return GL_RGBA;
 		default: return GL_LUMINANCE;
 	}
@@ -77,6 +82,9 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 #ifndef TARGET_OPENGLES
 		case GL_RGB8: return "GL_RGB8";
 #endif
+        case GL_ABGR_EXT: return "GL_ABGR_EXT";
+        case GL_BGRA: return "GL_BGRA";
+        case OF_ARGB: return "OF_ARGB"; // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8
 		case GL_LUMINANCE: return "GL_LUMINANCE";
 #ifndef TARGET_OPENGLES
 		case GL_LUMINANCE8: return "GL_LUMINANCE8";
@@ -98,8 +106,7 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 //---------------------------------
 void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 	switch(glInternalFormat) {
-
-			
+            
 		case GL_RGBA:
 #ifndef TARGET_OPENGLES
 		case GL_RGBA8:
@@ -121,7 +128,24 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 			glFormat = GL_LUMINANCE;
 			glType = GL_UNSIGNED_BYTE;
 			break;
-			
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        case GL_RGB_422_APPLE:
+            glFormat = GL_RGB_422_APPLE;
+			glType = GL_UNSIGNED_SHORT_8_8_APPLE;
+            break;
+#endif
+        case GL_ABGR_EXT:
+            glFormat = GL_ABGR_EXT;
+			glType = GL_UNSIGNED_BYTE;
+            break;
+        case OF_ARGB: // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8
+            glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8;
+            break;
+        case GL_BGRA:
+            glFormat = GL_BGRA;
+			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
+            break;
 #ifndef TARGET_OPENGLES
 		// 16-bit unsigned short formats
 		case GL_RGBA16:
@@ -190,6 +214,7 @@ ofImageType ofGetImageTypeFromGLType(int glType){
 		return OF_IMAGE_GRAYSCALE;
 	case GL_RGB:
 		return OF_IMAGE_COLOR;
+    case GL_BGRA:
 	case GL_RGBA:
 		return OF_IMAGE_COLOR_ALPHA;
 #ifndef TARGET_OPENGLES
@@ -419,15 +444,16 @@ void ofTexture::allocate(const ofPixels& pix){
 
 //----------------------------------------------------------
 void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExtention){
+    
 	//our graphics card might not support arb so we have to see if it is supported.
 #ifndef TARGET_OPENGLES
-	if (bUseARBExtention && GL_ARB_texture_rectangle){
+	if(bUseARBExtention && GL_ARB_texture_rectangle){
 		texData.tex_w = w;
 		texData.tex_h = h;
 		texData.tex_t = w;
 		texData.tex_u = h;
 		texData.textureTarget = GL_TEXTURE_RECTANGLE_ARB;
-	} else 
+	}else 
 #endif
 	{
 		//otherwise we need to calculate the next power of 2 for the requested dimensions
@@ -452,16 +478,31 @@ void ofTexture::allocate(int w, int h, int internalGlDataType, bool bUseARBExten
 	glEnable(texData.textureTarget);
 	
 	glBindTexture(texData.textureTarget, (GLuint)texData.textureID);
+    
 #ifndef TARGET_OPENGLES
 	// can't do this on OpenGL ES: on full-blown OpenGL, 
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    if(texData.glTypeInternal == GL_BGRA || texData.glTypeInternal == GL_ABGR_EXT || texData.glTypeInternal == OF_ARGB){
+        // annoyingly the correct way to init BGRA texture is with GL_RGBA 
+        // where we've been using texData.glTypeInternal, but we still want 
+        // to use glTypeInternal and glType set to GL_BGRA and pixelType 
+        // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
+        // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
+        // see: http://www.meandmark.com/textureloadingpart7.html
+        glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+    }else if(texData.glTypeInternal == GL_RGB_422_APPLE){
+        glTexImage2D(texData.textureTarget, 0, GL_RGB, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+#endif
+    }else{
+        glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }
 #else
 	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, texData.tex_w, texData.tex_h, 0, texData.glTypeInternal, texData.pixelType, 0);
 #endif
-	
 	
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(texData.textureTarget, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -514,12 +555,26 @@ void ofTexture::allocate(const ofTextureData & textureData){
 	glEnable(texData.textureTarget);
 
 	glBindTexture(texData.textureTarget, (GLuint)texData.textureID);
+    
 #ifndef TARGET_OPENGLES
-	// can't do this on OpenGL ES: on full-blown OpenGL,
+	// can't do this on OpenGL ES: on full-blown OpenGL, 
 	// glInternalFormat and glFormat (GL_LUMINANCE below)
 	// can be different; on ES they must be exactly the same.
 	//		glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, GL_LUMINANCE, PIXEL_TYPE, 0);  // init to black...
-	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    if(texData.glTypeInternal == GL_BGRA || texData.glTypeInternal == GL_ABGR_EXT || texData.glTypeInternal == OF_ARGB){
+        // annoyingly the correct way to init BGRA texture is with GL_RGBA 
+        // where we've been using texData.glTypeInternal, but we still want 
+        // to use glTypeInternal and glType set to GL_BGRA and pixelType 
+        // set to GL_UNSIGNED_INT_8_8_8_8_REV see: 
+        // https://developer.apple.com/library/mac/#samplecode/CoreImageGLTextureFBO/Listings/MyOpenGLView_m.html
+        // also there is no GL_ARGB but we can use GL_RGBA, GL_BGRA and GL_UNSIGNED_INT_8_8_8_8, 
+        // see: http://www.meandmark.com/textureloadingpart7.html
+        glTexImage2D(texData.textureTarget, 0, GL_RGBA, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else if (texData.glTypeInternal == GL_RGB_422_APPLE){
+        glTexImage2D(texData.textureTarget, 0, GL_RGB, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }else{
+        glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, (GLint)texData.tex_w, (GLint)texData.tex_h, 0, texData.glType, texData.pixelType, 0);  // init to black...
+    }
 #else
 	glTexImage2D(texData.textureTarget, 0, texData.glTypeInternal, texData.tex_w, texData.tex_h, 0, texData.glTypeInternal, texData.pixelType, 0);
 #endif
@@ -567,9 +622,6 @@ void ofTexture::loadData(const ofFloatPixels & pix){
 	loadData(pix.getPixels(), pix.getWidth(), pix.getHeight(), ofGetGlFormat(pix));
 }
 
-
-
-
 //----------------------------------------------------------
 void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	
@@ -581,14 +633,16 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	//	int uploadH = MIN(h, tex_h);
 	//  but with a "step" size of w?
 	// 	check "glTexSubImage2D"
-	texData.glType = glFormat;
+    if(glFormat != texData.glTypeInternal){
+        texData.glType = glFormat; // should we allow this override at all?
+    }
 	
 	/*if(glFormat!=texData.glType) {
 		ofLogError() << "ofTexture::loadData() failed to upload format " <<  ofGetGlInternalFormatName(glFormat) << " data to " << ofGetGlInternalFormatName(texData.glType) << " texture" <<endl;
 		return;
 	}*/
 	
-	if(w > texData.tex_w || h > texData.tex_h) {
+	if(w > texData.tex_w || h > texData.tex_h){
 		ofLogError() << "ofTexture::loadData() failed to upload " <<  w << "x" << h << " data to " << texData.tex_w << "x" << texData.tex_h << " texture";
 		return;
 	}
@@ -599,10 +653,10 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	
 	// compute new tex co-ords based on the ratio of data's w, h to texture w,h;
 #ifndef TARGET_OPENGLES
-	if (texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
+	if(texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
 		texData.tex_t = w;
 		texData.tex_u = h;
-	} else 
+	}else 
 #endif
 	{
 		texData.tex_t = (float)(w) / (float)texData.tex_w;
@@ -638,7 +692,7 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 	
 	
 	//Sosolimited: texture compression
-	if (texData.compressionType == OF_COMPRESS_NONE) {
+	if(texData.compressionType == OF_COMPRESS_NONE){
 		//STANDARD openFrameworks: no compression
 		
 		//update the texture image: 
@@ -646,12 +700,12 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 		glBindTexture(texData.textureTarget, (GLuint) texData.textureID);
  		glTexSubImage2D(texData.textureTarget, 0, 0, 0, w, h, texData.glType, texData.pixelType, data);
 		glDisable(texData.textureTarget);
-	} else {
+	}else{
 		//SOSOLIMITED: setup mipmaps and use compression
 		//TODO: activate at least mimaps for OPENGL_ES
 		//need proper tex_u and tex_t positions, with mipmaps they are the nearest power of 2
 #ifndef TARGET_OPENGLES		
-		if (texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
+		if(texData.textureTarget == GL_TEXTURE_RECTANGLE_ARB){
 			
 			//need to find closest powers of two
 			int last_h = ofNextPow2(texData.height)>>1;
@@ -683,40 +737,33 @@ void ofTexture::loadData(void * data, int w, int h, int glFormat){
 		
 		
 #ifndef TARGET_OPENGLES		
-		//using sRGB compression
-		if (texData.compressionType == OF_COMPRESS_SRGB)
-		{
-			if(texData.glType == GL_RGBA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_RGB)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE_ALPHA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_SRGB_ALPHA, w, h, texData.glType, texData.pixelType, data);
-		}
 		
-		//using ARB compression: default
-		else
-		{
-			if(texData.glType == GL_RGBA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_RGBA_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_RGB)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_RGB_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE_ALPHA)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_LUMINANCE_ALPHA_ARB, w, h, texData.glType, texData.pixelType, data);
-			
-			else if(texData.glType == GL_LUMINANCE)
-				gluBuild2DMipmaps(texData.textureTarget, GL_COMPRESSED_LUMINANCE_ARB, w, h, texData.glType, texData.pixelType, data);
+        int glCompressionType = 0;
+		if(texData.compressionType == OF_COMPRESS_SRGB){
+            // using sRGB compression
+            glCompressionType = GL_COMPRESSED_SRGB_ALPHA;
+		}else{
+            // using ARB compression: default
+            switch(texData.glType){
+                case GL_RGBA:
+                case GL_BGRA:
+                case OF_ARGB:
+                case GL_ABGR_EXT:
+                    glCompressionType = GL_COMPRESSED_RGBA_ARB;
+                    break;
+                case GL_RGB:
+                    glCompressionType = GL_COMPRESSED_RGB_ARB;
+                    break;
+                case GL_LUMINANCE:
+                    glCompressionType = GL_COMPRESSED_LUMINANCE_ALPHA_ARB;
+                    break;
+                case GL_LUMINANCE_ALPHA:
+                    glCompressionType = GL_COMPRESSED_LUMINANCE_ARB;
+                    break;
+            }
 		}
+        gluBuild2DMipmaps(texData.textureTarget, glCompressionType, w, h, texData.glType, texData.pixelType, data);
 #endif
-		
-		
 		glDisable(texData.textureTarget);
 		
 	}

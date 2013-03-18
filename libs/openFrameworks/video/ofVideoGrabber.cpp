@@ -193,6 +193,7 @@ void ofVideoGrabber::update(){
 			{
 				tex.loadData(grabber->getPixels(), (int)tex.getWidth(), (int)tex.getHeight(), ofGetGLTypeFromPixelFormat(internalPixelFormat));
 			}
+
 		}
 	}
 }

@@ -14,23 +14,23 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		ofQuickTimePlayer();
 		~ofQuickTimePlayer();
 
-		 bool			loadMovie(string name);
-		 void			closeMovie();	
-		 void			close();
-		 void			update();
+        bool			loadMovie(string name);
+        void			closeMovie();	
+        void			close();
+        void			update();
 
-		 void			play();
-		 void			stop();
+        void			play();
+        void			stop();
 		 
-		 void			clearMemory();
+        void			clearMemory();
 		 
 		bool            setPixelFormat(ofPixelFormat pixelFormat);
 		ofPixelFormat   getPixelFormat();		 
-	
-		 bool 			isFrameNew();
-		 unsigned char * 	getPixels();
-		 ofPixelsRef		getPixelsRef();
-		 const ofPixels&	getPixelsRef() const;
+
+        bool 			isFrameNew();
+        unsigned char * getPixels();
+        ofPixelsRef		getPixelsRef();
+        const ofPixels&	getPixelsRef() const;
 		
 		 float 			getWidth();
 		 float 			getHeight();
@@ -59,11 +59,10 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 void			nextFrame();
 		 void			previousFrame();
 		 
-		bool 				bHavePixelsChanged;
-		 
-		 
-		
+        bool 			bHavePixelsChanged;
+    
 	protected:
+    
 		void createImgMemAndGWorld();
 		void start();
 
@@ -91,6 +90,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		unsigned char * 	offscreenGWorldPixels;	// 32 bit: argb (qt k32ARGBPixelFormat)
 		void				qtGetFrameCount(Movie & movForcount);
 
+        ofPixelFormat       internalPixelFormat;
 };
 
 #endif
