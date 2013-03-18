@@ -827,6 +827,38 @@ vector<string> ofQuickTimePlayer::getAudioDevices(){
 }
 
 //---------------------------------------------------------------------------
+int ofQuickTimePlayer::getAudioTrackList(){
+    
+    AudioChannelLayout *layout;
+    int trackIndex;
+    
+    for(trackIndex = 0; trackIndex < GetMovieTrackCount(moviePtr); trackIndex++){
+        UInt32 size = 0;
+        
+        Track track = GetMovieIndTrackType(moviePtr, trackIndex, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
+        
+        if(track == nil) continue;
+        
+        QTGetTrackPropertyInfo(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, nil, &size, nil);
+        
+        layout = (AudioChannelLayout*)calloc(1, size);
+        
+        QTGetTrackProperty(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, size, layout, nil );
+        
+        for(int i = 0; i < layout->mNumberChannelDescriptions; i++){
+            ofLogNotice() << "trackindex: " << trackIndex << " channel: " << i << " assigned to: " << getAudioChannelAsString(layout->mChannelDescriptions[i].mChannelLabel) << " == " << layout->mChannelDescriptions[i].mChannelLabel;
+        }
+        break;
+    }
+    
+    free(layout);
+    
+    // so this actually returns the first audio track
+    // which is a bit dodgy, but will work for now
+    return trackIndex;
+}
+
+//---------------------------------------------------------------------------
 bool ofQuickTimePlayer::setAudioDevice(int ID){
     if(qtAudioDeviceList.size() == 0){
         if(getAudioDevices().size() == 0){
@@ -859,6 +891,61 @@ bool ofQuickTimePlayer::setAudioDevice(string deviceName){
 }
 
 //---------------------------------------------------------------------------
+bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel){
+    
+    bool ok = false;
+    UInt32 size;
+    AudioChannelLayout* layout;
+    
+    Track track = GetMovieIndTrackType(moviePtr, trackIndex, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
+    
+    if(track == nil){
+        ofLogError() << "Invalid track index: " << trackIndex;
+        return false;
+    }
+    
+    QTGetTrackPropertyInfo(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, nil, &size, nil);
+    
+    layout = (AudioChannelLayout*)calloc(1, size);
+    
+    QTGetTrackProperty(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, size, layout, nil );
+    
+    int kNumChannelDescr = layout->mNumberChannelDescriptions;
+    
+    layout->mChannelLayoutTag = kAudioChannelLayoutTag_UseChannelDescriptions;
+    layout->mChannelBitmap =  0 ;
+    
+    
+    for(int i = 0; i < layout->mNumberChannelDescriptions; i++){
+        if(layout->mChannelDescriptions[i].mChannelLabel == oldChannelLabel){
+            layout->mChannelDescriptions[i].mChannelLabel = newChannelLabel;
+            layout->mChannelDescriptions[0].mChannelFlags = kAudioChannelFlags_AllOff;
+            ok = true;
+        }
+    }
+    
+    if(!ok){
+        ofLogError() << "No channel description matches: " << getAudioChannelAsString(oldChannelLabel) << " == " << oldChannelLabel;
+        free(layout);
+        return false;
+    }
+
+    if(QTSetTrackProperty(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, size, layout) != noErr){
+        ok = false;
+    }
+    
+    free(layout);
+    
+    if(ok){
+        return true;
+    }else{
+        ofLogError() << "Could not assign the new channel layout";
+        return false;
+    }
+    
+}
+
+//---------------------------------------------------------------------------
 bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     
     QTAudioContextRef audioContext = NULL;
@@ -871,6 +958,143 @@ bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
     return false;
     
+}
+
+//---------------------------------------------------------------------------
+string ofQuickTimePlayer::getAudioChannelAsString(AudioChannelLabel label){
+    
+    string labelString = "";
+    
+    switch (label) {
+        case kAudioChannelLabel_Left:
+            labelString = "Left";
+            break;
+        case kAudioChannelLabel_Right:
+            labelString = "Right";
+            break;
+        case kAudioChannelLabel_Center:
+            labelString = "Center";
+            break;
+        case kAudioChannelLabel_LFEScreen:
+            labelString = "LFE Screen";
+            break;
+        case kAudioChannelLabel_LeftSurround:
+            labelString = "Left Surround";
+            break;
+        case kAudioChannelLabel_RightSurround:
+            labelString = "Right Surround";
+            break;
+        case kAudioChannelLabel_CenterSurround:
+            labelString = "Center Surround";
+            break;
+        case kAudioChannelLabel_Mono:
+            labelString = "Mono";
+            break;
+        case kAudioChannelLabel_Unused:
+            labelString = "Unused";
+            break;
+        case kAudioChannelLabel_Discrete_0:
+            labelString = "Discrete 0";
+            break;
+        case kAudioChannelLabel_Discrete_1:
+            labelString = "Discrete 1";
+            break;
+        case kAudioChannelLabel_Discrete_2:
+            labelString = "Discrete 2";
+            break;
+        case kAudioChannelLabel_Discrete_3:
+            labelString = "Discrete 3";
+            break;
+        case kAudioChannelLabel_Discrete_4:
+            labelString = "Discrete 4";
+            break;
+        case kAudioChannelLabel_Discrete_5:
+            labelString = "Discrete 5";
+            break;
+        case kAudioChannelLabel_Discrete_6:
+            labelString = "Discrete 6";
+            break;
+        case kAudioChannelLabel_Discrete_7:
+            labelString = "Discrete 7";
+            break;
+        case kAudioChannelLabel_Discrete_8:
+            labelString = "Discrete 8";
+            break;
+        case kAudioChannelLabel_Discrete_9:
+            labelString = "Discrete 9";
+            break;
+        case kAudioChannelLabel_Discrete_10:
+            labelString = "Discrete 10";
+            break;
+        case kAudioChannelLabel_Discrete_11:
+            labelString = "Discrete 11";
+            break;
+        case kAudioChannelLabel_Discrete_12:
+            labelString = "Discrete 12";
+            break;
+        case kAudioChannelLabel_Discrete_13:
+            labelString = "Discrete 13";
+            break;
+        case kAudioChannelLabel_Discrete_14:
+            labelString = "Discrete 14";
+            break;
+        case kAudioChannelLabel_Discrete_15:
+            labelString = "Discrete 15";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 16:
+            labelString = "Discrete 16";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 17:
+            labelString = "Discrete 17";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 18:
+            labelString = "Discrete 18";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 19:
+            labelString = "Discrete 19";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 20:
+            labelString = "Discrete 20";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 21:
+            labelString = "Discrete 21";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 22:
+            labelString = "Discrete 22";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 23:
+            labelString = "Discrete 23";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 24:
+            labelString = "Discrete 24";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 25:
+            labelString = "Discrete 25";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 26:
+            labelString = "Discrete 26";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 27:
+            labelString = "Discrete 27";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 28:
+            labelString = "Discrete 28";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 29:
+            labelString = "Discrete 29";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 30:
+            labelString = "Discrete 30";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 31:
+            labelString = "Discrete 31";
+            break;
+        case kAudioChannelLabel_Discrete_0 | 32:
+            labelString = "Discrete 32";
+            break;
+    }
+    
+    return labelString;
 }
 
 //---------------------------------------------------------------------------

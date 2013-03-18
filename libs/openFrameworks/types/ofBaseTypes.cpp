@@ -77,6 +77,12 @@ vector<string> ofBaseVideoPlayer::getAudioDevices(){
 }
 
 //---------------------------------------------------------------------------
+int ofBaseVideoPlayer::getAudioTrackList(){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getAudioTrackList not implemented");
+    return 0;
+}
+
+//---------------------------------------------------------------------------
 bool ofBaseVideoPlayer::setAudioDevice(int ID){
     ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioDevice not implemented");
     return false;
@@ -85,6 +91,12 @@ bool ofBaseVideoPlayer::setAudioDevice(int ID){
 //---------------------------------------------------------------------------
 bool ofBaseVideoPlayer::setAudioDevice(string deviceName){
     ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioDevice not implemented");
+    return false;
+}
+
+//---------------------------------------------------------------------------
+bool ofBaseVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setAudioTrackToChannel not implemented");
     return false;
 }
 

@@ -50,6 +50,11 @@ vector<string> ofVideoPlayer::getAudioDevices(){
 }
 
 //---------------------------------------------------------------------------
+int ofVideoPlayer::getAudioTrackList(){
+    return player->getAudioTrackList();
+}
+
+//---------------------------------------------------------------------------
 bool ofVideoPlayer::setAudioDevice(int ID){
     return player->setAudioDevice(ID);
 }
@@ -57,6 +62,11 @@ bool ofVideoPlayer::setAudioDevice(int ID){
 //---------------------------------------------------------------------------
 bool ofVideoPlayer::setAudioDevice(string deviceName){
     return player->setAudioDevice(deviceName);
+}
+
+//---------------------------------------------------------------------------
+bool ofVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel){
+    return player->setAudioTrackToChannel(trackIndex, oldChannelLabel, newChannelLabel);
 }
 
 //---------------------------------------------------------------------------

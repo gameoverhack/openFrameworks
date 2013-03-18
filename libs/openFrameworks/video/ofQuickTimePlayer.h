@@ -41,7 +41,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		bool            setPixelFormat(ofPixelFormat pixelFormat);
 		ofPixelFormat   getPixelFormat();		 
 	
-		 bool 			isFrameNew();
+		 bool               isFrameNew();
 		 unsigned char * 	getPixels();
 		 ofPixelsRef		getPixelsRef();
 		 const ofPixels&	getPixelsRef() const;
@@ -59,7 +59,9 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 float			getSpeed();
 		 bool			getIsMovieDone();
 		 ofLoopType 	getLoopState();
+    
          vector<string> getAudioDevices();
+         int            getAudioTrackList();
 
 		 void 			setPosition(float pct);
 		 void 			setVolume(float volume);
@@ -67,22 +69,26 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 void   		setSpeed(float speed);
 		 void			setFrame(int frame);  // frame 0 = first frame...
 		 void 			setPaused(bool bPause);
+    
          bool           setAudioDevice(int ID);
          bool           setAudioDevice(string deviceName);
     
+         bool           setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
+
 		 int			getCurrentFrame();
 
 		 void			firstFrame();
 		 void			nextFrame();
 		 void			previousFrame();
 		 
-		bool 				bHavePixelsChanged;
-		 
-		 
-		
+		bool 			bHavePixelsChanged;
+        
 	protected:
-		void createImgMemAndGWorld();
+		
+        void createImgMemAndGWorld();
         bool createAudioContext(qtAudioDevice qtDevice);
+        string getAudioChannelAsString(AudioChannelLabel label);
+    
 		void start();
 
 		ofPixels		 	pixels;

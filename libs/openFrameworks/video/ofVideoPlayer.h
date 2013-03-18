@@ -56,7 +56,9 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		float 				getSpeed();
 		float 				getDuration();
 		bool				getIsMovieDone();
+    
         vector<string>      getAudioDevices();
+        int                 getAudioTrackList();
     
 		void 				setPosition(float pct);
 		void 				setVolume(float volume); // 0..1
@@ -64,8 +66,11 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		ofLoopType			getLoopState();
 		void   				setSpeed(float speed);
 		void				setFrame(int frame);  // frame 0 = first frame...
+    
         bool                setAudioDevice(int ID);
         bool                setAudioDevice(string deviceName);
+    
+        bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
     
 		void 				setUseTexture(bool bUse);
 		ofTexture &			getTextureReference();
