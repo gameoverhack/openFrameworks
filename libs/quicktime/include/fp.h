@@ -86,8 +86,12 @@ typedef double                          double_t;
 typedef long double                     float_t;
 typedef long double                     double_t;
 #elif TARGET_CPU_X86
+#ifdef float_t
 typedef double                          float_t;
+#endif
+#ifdef double_t
 typedef double                          double_t;
+#endif
 #elif TARGET_CPU_MIPS
 typedef double                          float_t;
 typedef double                          double_t;
@@ -119,7 +123,7 @@ typedef double                          double_t;
     #define   NAN                     nan("255")
   #endif
 #else
-  #define     NAN                     sqrt(-1)
+  //#define     NAN                     sqrt(-1)
 #endif
 
 #if TARGET_CPU_PPC
