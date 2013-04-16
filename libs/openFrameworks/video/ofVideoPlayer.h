@@ -39,10 +39,10 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 	    string				getMoviePath();
 
 		bool				setPixelFormat(ofPixelFormat pixelFormat);
-		ofPixelFormat		getPixelFormat(); 
-		
+		ofPixelFormat		getPixelFormat();
+
 		void 				closeMovie();
-		void 				close();		
+		void 				close();
 
 		void				update();
 		OF_DEPRECATED_MSG("Use ofVideoPlayer::update() instead.", void idleMovie());
@@ -59,6 +59,7 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 
 		void 				setPosition(float pct);
 		void 				setVolume(float volume); // 0..1
+		void                setPan(float pan); // L -1.0...1.0 R
 		void 				setLoopState(ofLoopType state);
 		ofLoopType			getLoopState();
 		void   				setSpeed(float speed);
@@ -92,13 +93,13 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		bool				isLoaded();
 		bool				isPlaying();
 
-		//this is kept as legacy to support people accessing width and height directly. 
+		//this is kept as legacy to support people accessing width and height directly.
 		int					height;
 		int					width;
 
 	private:
 		ofPtr<ofBaseVideoPlayer>		player;
-		
+
 		ofTexture tex;
 		ofTexture * playerTex; // a seperate texture that may be optionally implemented by the player to avoid excessive pixel copying.
 		bool bUseTexture;
