@@ -38,7 +38,7 @@ class ofVideoGrabber : public ofBaseVideoGrabber,public ofBaseVideoDraws{
 
 		ofVideoGrabber();
 		virtual ~ofVideoGrabber();
-		
+
 		void					setGrabber(ofPtr<ofBaseVideoGrabber> newGrabber);
 		ofPtr<ofBaseVideoGrabber> getGrabber();
 
@@ -46,12 +46,13 @@ class ofVideoGrabber : public ofBaseVideoGrabber,public ofBaseVideoDraws{
 		bool				isFrameNew();
 		void				update();
 		void				grabFrame();
-		void				close();	
+		void				close();
 		bool				initGrabber(int w, int h){return initGrabber(w,h,true);}
 		bool				initGrabber(int w, int h, bool bTexture);
+		void                setRequestedMediaSubType(int mediatype);
 		void				setPixelFormat(ofPixelFormat pixelFormat);
 		ofPixelFormat 		getPixelFormat();
-		
+
 		void				videoSettings();
 		unsigned char 	*	getPixels();
 		ofPixelsRef			getPixelsRef();
@@ -76,18 +77,18 @@ class ofVideoGrabber : public ofBaseVideoGrabber,public ofBaseVideoDraws{
 
 		bool				isInitialized();
 
-		//this is kept as legacy to support people accessing width and height directly. 
+		//this is kept as legacy to support people accessing width and height directly.
 		int					height;
 		int					width;
 
 	private:
-		
+
 		ofTexture tex;
 		bool bUseTexture;
 		bool bInitialized;
 		ofPtr<ofBaseVideoGrabber> grabber;
 		int RequestedDeviceID;
-		
+
 		ofPixelFormat internalPixelFormat;
 };
 
