@@ -91,12 +91,19 @@ bool ofVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat){
     }
 }
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------
 ofPixelFormat ofVideoGrabber::getPixelFormat(){
 	if( grabber != NULL ){
 		internalPixelFormat = grabber->getPixelFormat();
 	}
 	return internalPixelFormat;
+}
+
+//--------------------------------------------------------------------
+void ofVideoGrabber::setRequestedMediaSubType(int mediatype){
+    if(	grabber != NULL ){
+        grabber->setRequestedMediaSubType(mediatype);
+    }
 }
 
 //--------------------------------------------------------------------

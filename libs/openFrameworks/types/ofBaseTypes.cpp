@@ -27,15 +27,21 @@ void ofBaseVideoGrabber::videoSettings(){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoGrabber::videoSettings not implemented");
 }
 
-//---------------------------------------------------------------------------
+////---------------------------------------------------------------------------
 //void ofBaseVideoGrabber::setPixelFormat(ofPixelFormat pixelFormat){
 //	ofLog(OF_LOG_WARNING, "ofBaseVideoGrabber::setPixelFormat not implemented");
 //}
 //
+////---------------------------------------------------------------------------
 //ofPixelFormat ofBaseVideoGrabber::getPixelFormat(){
-//	ofLog(OF_LOG_WARNING, "ofBaseVideoGrabber::getPixelFormat not implemented");
-//	return OF_PIXELS_RGB;
+//	ofLog(OF_LOG_WARNING, "ofBaseVideoGrabber::setPixelFormat not implemented");
+//	return ofPixelFormat();
 //}
+
+//---------------------------------------------------------------------------
+void ofBaseVideoGrabber::setRequestedMediaSubType(int mediatype){
+	ofLog(OF_LOG_WARNING, "ofBaseVideoGrabber::setRequestedMediaSubType not implemented");
+}
 
 //---------------------------------------------------------------------------
 

@@ -40,6 +40,7 @@ typedef ofPixels& ofPixelsRef;
 class ofBaseDraws{
 public:
 	virtual ~ofBaseDraws(){}
+
 	virtual void draw(float x, float y)=0;
 	virtual void draw(float x, float y, float w, float h)=0;
 	virtual void draw(const ofPoint & point) {
@@ -216,6 +217,9 @@ class ofBaseVideoGrabber: virtual public ofBaseVideo{
 	virtual void setDesiredFrameRate(int framerate);
 	virtual void videoSettings();
 
+	virtual void setRequestedMediaSubType(int mediatype);
+
+
 };
 
 
@@ -249,7 +253,6 @@ public:
 	virtual bool				setPixelFormat(ofPixelFormat pixelFormat) = 0;
 	virtual ofPixelFormat 		getPixelFormat() = 0;
 
-	//should implement!
 	virtual float 				getPosition();
 	virtual float 				getSpeed();
 	virtual float 				getDuration();
@@ -272,6 +275,7 @@ public:
 	virtual void				firstFrame();
 	virtual void				nextFrame();
 	virtual void				previousFrame();
+
 };
 
 //----------------------------------------------------------

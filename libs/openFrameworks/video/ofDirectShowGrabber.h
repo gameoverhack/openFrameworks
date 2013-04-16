@@ -27,38 +27,38 @@ class ofDirectShowGrabber : public ofBaseVideoGrabber{
 
 		unsigned char		* 	getPixels();
 		ofPixelsRef				getPixelsRef();
-		
+
 		void					close();
 		void					clearMemory();
 
 		void					videoSettings();
-		
+
 		float					getWidth();
 		float					getHeight();
 
 		void					setVerbose(bool bTalkToMe);
 		void					setDeviceID(int _deviceID);
 		void					setDesiredFrameRate(int framerate);
+        void                    setRequestedMediaSubType(int mediatype);
 
 
-		
 
 	protected:
-	
+
 		bool					bChooseDevice;
 		int						deviceID;
 		bool 					bVerbose;
 		bool 					bGrabberInited;
 	    ofPixels		 		pixels;
 		int						attemptFramerate;
-		bool 					bIsFrameNew;	
-		
-		int						width, height;	
+		bool 					bIsFrameNew;
+
+		int						width, height;
 		//--------------------------------- directshow
 		#ifdef OF_VIDEO_CAPTURE_DIRECTSHOW
 			int 					device;
 			videoInput 				VI;
 			bool 					bDoWeNeedToResize;
-		#endif	
+		#endif
 };
 

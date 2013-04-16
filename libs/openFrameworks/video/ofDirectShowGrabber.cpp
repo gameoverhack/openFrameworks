@@ -269,6 +269,10 @@ void ofDirectShowGrabber::setDesiredFrameRate(int framerate){
 	attemptFramerate = framerate;
 }
 
+//--------------------------------------------------------------------
+void ofDirectShowGrabber::setRequestedMediaSubType(int mediaType) {
+    VI.setRequestedMediaSubType(mediaType);
+}
 
 //--------------------------------------------------------------------
 void ofDirectShowGrabber::videoSettings(void){
