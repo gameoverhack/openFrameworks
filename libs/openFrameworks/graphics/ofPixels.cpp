@@ -187,6 +187,9 @@ void ofPixels_<PixelType>::allocate(int w, int h, ofPixelFormat format){
 		case OF_PIXELS_RGB:
 			imgType = OF_IMAGE_COLOR;
 			break;
+        case OF_PIXELS_UYVY:
+        case OF_PIXELS_ABGR:
+        case OF_PIXELS_ARGB:
 		case OF_PIXELS_RGBA:
 		case OF_PIXELS_BGRA:
 			imgType = OF_IMAGE_COLOR_ALPHA;

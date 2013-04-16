@@ -197,8 +197,8 @@ ofHttpResponse ofURLFileLoader::handleRequest(ofHttpRequest request) {
     }
 
 	return ofHttpResponse(request,-1,"ofURLFileLoader fatal error, couldn't catch Exception");
-	
-}	
+
+}
 
 void ofURLFileLoader::update(ofEventArgs & args){
 	lock();

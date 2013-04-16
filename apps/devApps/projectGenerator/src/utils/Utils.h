@@ -47,10 +47,13 @@ bool askOFRoot();
 string getOFRootFromConfig();
 
 template <class T>
-inline bool isInVector(T item, vector<T> & vec){
+inline bool isInVector(T item, vector<T> & vec)
+{
     bool bIsInVector = false;
-    for(int i=0;i<vec.size();i++){
-        if(vec[i] == item){
+    for(int i=0; i<vec.size(); i++)
+    {
+        if(vec[i] == item)
+        {
             bIsInVector = true;
             break;
         }

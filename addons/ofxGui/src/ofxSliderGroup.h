@@ -4,9 +4,11 @@
 #include "ofxSlider.h"
 
 template<class VecType>
-class ofxVecSlider_ : public ofxGuiGroup {
+class ofxVecSlider_ : public ofxGuiGroup
+{
 public:
-    ofxVecSlider_(){
+    ofxVecSlider_()
+    {
         sliderChanging = false;
     };
     ofxVecSlider_(ofParameter<VecType> value, float width = defaultWidth, float height = defaultHeight);
@@ -17,8 +19,8 @@ public:
     ofAbstractParameter & getParameter();
 
     VecType operator=(const VecType & v);
-	operator const VecType & ();
-	const VecType * operator->();
+    operator const VecType & ();
+    const VecType * operator->();
 protected:
     void changeSlider(const void * parameter, float & value);
     void changeValue(VecType & value);
@@ -32,21 +34,23 @@ typedef ofxVecSlider_<ofVec4f> ofxVec4Slider;
 typedef ofxVecSlider_<ofVec3f> ofxPointSlider;
 
 template<typename ColorType>
-class ofxColorSlider_: public ofxGuiGroup{
+class ofxColorSlider_: public ofxGuiGroup
+{
 
 public:
-	ofxColorSlider_(){
-	    sliderChanging = false;
-	};
-	ofxColorSlider_(ofParameter<ofColor_<ColorType> > value, float width = defaultWidth, float height = defaultHeight);
+    ofxColorSlider_()
+    {
+        sliderChanging = false;
+    };
+    ofxColorSlider_(ofParameter<ofColor_<ColorType> > value, float width = defaultWidth, float height = defaultHeight);
 
-	ofxColorSlider_ * setup(ofParameter<ofColor_<ColorType> > value, float width = defaultWidth, float height = defaultHeight);
-	ofxColorSlider_ * setup(string controlName, const ofColor_<ColorType> & value, const ofColor_<ColorType> & min, const ofColor_<ColorType> & max, float width = defaultWidth, float height = defaultHeight);
+    ofxColorSlider_ * setup(ofParameter<ofColor_<ColorType> > value, float width = defaultWidth, float height = defaultHeight);
+    ofxColorSlider_ * setup(string controlName, const ofColor_<ColorType> & value, const ofColor_<ColorType> & min, const ofColor_<ColorType> & max, float width = defaultWidth, float height = defaultHeight);
 
-	ofAbstractParameter & getParameter();
+    ofAbstractParameter & getParameter();
 
-	ofColor_<ColorType> operator=(const ofColor_<ColorType> & v);
-	operator const ofColor_<ColorType> & ();
+    ofColor_<ColorType> operator=(const ofColor_<ColorType> & v);
+    operator const ofColor_<ColorType> & ();
 protected:
     void changeSlider(const void * parameter, ColorType & value);
     void changeValue(ofColor_<ColorType> & value);

@@ -13,7 +13,7 @@ static ComponentResult 	frameIsGrabbedProc(SGChannel sgChan, short nBufferNum, B
 static ComponentResult  frameIsGrabbedProc(SGChannel sgChan, short nBufferNum, Boolean *pbDone, long lRefCon){
 
  	ComponentResult err = SGGrabFrameComplete( sgChan, nBufferNum, pbDone );
-	
+
 	bool * havePixChanged = (bool *)lRefCon;
 	*havePixChanged = true;
 
@@ -89,20 +89,19 @@ void ofQuickTimeGrabber::setDesiredFrameRate(int framerate){
 	attemptFramerate = framerate;
 }
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------
 bool ofQuickTimeGrabber::setPixelFormat(ofPixelFormat pixelFormat){
-	//note as we only support RGB we are just confirming that this pixel format is supported
-	if( pixelFormat == OF_PIXELS_RGB ){
-		return true;
-	}
-	ofLogWarning("ofQuickTimeGrabber") << "requested pixel format not supported" << endl;
-	return false;
+    if(pixelFormat == OF_PIXELS_RGB565){
+        ofLogWarning() << "Pixel format not yet supported. Defaulting to OF_PIXELS_RGB";
+        pixelFormat = OF_PIXELS_RGB;
+    }
+    internalPixelFormat = pixelFormat;
+    return true;
 }
 
-//---------------------------------------------------------------------------
+//--------------------------------------------------------------------
 ofPixelFormat ofQuickTimeGrabber::getPixelFormat(){
-	//note if you support more than one pixel format you will need to return a ofPixelFormat variable. 
-	return OF_PIXELS_RGB;
+	return internalPixelFormat;
 }
 
 //--------------------------------------------------------------------
@@ -121,28 +120,77 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 		//---------------------------------- 2 - set the dimensions
 		//width 		= w;
 		//height 		= h;
-
-		MacSetRect(&videoRect, 0, 0, w, h);
+        MacSetRect(&videoRect, 0, 0, w, h);
 
 		//---------------------------------- 3 - buffer allocation
-		// Create a buffer big enough to hold the video data,
-		// make sure the pointer is 32-byte aligned.
-		// also the rgb image that people will grab
+        switch(internalPixelFormat){
+            case OF_PIXELS_MONO:
+            {
+                offscreenGWorldPixels = new unsigned char[1 * w * h + 8];
+                pixels.allocate(w, h, OF_IMAGE_GRAYSCALE);
+                // For k8IndexedGrayPixelFormat quicktime uses a reversed black and white color table ie., black for white, and
+                // white for black...rather than reverse every frame after decompression we can provide a custom color table
+                // thanks to the unwieldy and ancient: http://www.cs.cmu.edu/afs/cs/project/cmcl/link.iwarp/member/OldFiles/tomstr/Mac2/Michigan/mac.bin/hypercard/xcmd/TIFFWindow%20:c4/tiffinfo.c
 
-		offscreenGWorldPixels 	= (unsigned char*)malloc(4 * w * h + 32);
-		pixels.allocate(w, h, OF_IMAGE_COLOR);
-		
-		#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-			QTNewGWorldFromPtr (&(videogworld), k32ARGBPixelFormat, &(videoRect), NULL, NULL, 0, (offscreenGWorldPixels), 4 * w);		
-		#else
-			QTNewGWorldFromPtr (&(videogworld), k24RGBPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
-		#endif		
-		
+                // make a new color table
+                CTabHandle grayCTab = (CTabHandle) NewHandle((256 * sizeof(ColorSpec)) + 10);
+                (*grayCTab)->ctSeed = GetCTSeed();
+                (*grayCTab)->ctFlags = 0;
+                (*grayCTab)->ctSize = 255;
+                RGBColor rgb;
+                // invert the default color table
+                for(int i = 0; i < 256; i++){
+                    rgb.red = rgb.green = rgb.blue = (65535 / (255)) * i;
+                    (*grayCTab)->ctTable[i].value = i; /* this must be filled in... */
+                    (*grayCTab)->ctTable[i].rgb = rgb;
+                }
+                QTNewGWorldFromPtr (&(videogworld), k8IndexedGrayPixelFormat, &(videoRect), grayCTab, NULL, 0, (pixels.getPixels()), 1 * w);
+                DisposeCTable(grayCTab);
+                break;
+            }
+            case OF_PIXELS_RGB:
+            {
+                offscreenGWorldPixels = new unsigned char[3 * w * h + 24];
+                pixels.allocate(w, h, OF_IMAGE_COLOR);
+                QTNewGWorldFromPtr (&(videogworld), k24RGBPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+                break;
+            }
+            case OF_PIXELS_RGBA:
+            {
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k32RGBAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+            case OF_PIXELS_BGRA:
+            {
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k32BGRAPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+            case OF_PIXELS_UYVY:
+            {
+                w = w/2;
+                offscreenGWorldPixels = new unsigned char[4 * w * h + 32];
+                pixels.allocate(w, h, OF_IMAGE_COLOR_ALPHA);
+                QTNewGWorldFromPtr (&(videogworld), k2vuyPixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 4 * w);
+                break;
+            }
+//            case OF_PIXELS_RGB565:
+//            {
+//                offscreenGWorldPixels = new unsigned char[3 * w * h + 16];
+//                pixels.allocate(w, h, OF_IMAGE_COLOR);
+//                QTNewGWorldFromPtr (&(videogworld), k16BE565PixelFormat, &(videoRect), NULL, NULL, 0, (pixels.getPixels()), 3 * w);
+//                break;
+//            }
+        }
+
 		LockPixels(GetGWorldPixMap(videogworld));
 		SetGWorld (videogworld, NULL);
 		SGSetGWorld(gSeqGrabber, videogworld, nil);
 
-		
+
 		//---------------------------------- 4 - device selection
 		bool didWeChooseADevice = bChooseDevice;
 		bool deviceIsSelected	=  false;
@@ -178,25 +226,25 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 	 	err = SGSetChannelUsage(gVideoChannel,seqGrabPreview);
 		if ( err != noErr ) goto bail;
 
-	
+
 		//----------------- callback method for notifying new frame
 		err = SGSetChannelRefCon(gVideoChannel, (long)&bHavePixelsChanged );
 		if(!err) {
 
-			VideoBottles vb; 
-			/* get the current bottlenecks */ 
-			vb.procCount = 9; 
-			err = SGGetVideoBottlenecks(gVideoChannel, &vb); 
-			if (!err) { 			
+			VideoBottles vb;
+			/* get the current bottlenecks */
+			vb.procCount = 9;
+			err = SGGetVideoBottlenecks(gVideoChannel, &vb);
+			if (!err) {
 				myGrabCompleteProc = NewSGGrabCompleteBottleUPP(frameIsGrabbedProc);
 				vb.grabCompleteProc = myGrabCompleteProc;
-			
-				/* add our GrabFrameComplete function */ 
-				err = SGSetVideoBottlenecks(gVideoChannel, &vb); 	
+
+				/* add our GrabFrameComplete function */
+				err = SGSetVideoBottlenecks(gVideoChannel, &vb);
 			}
-		
+
 		}
-				
+
 		err = SGSetChannelBounds(gVideoChannel, &videoRect);
 		if ( err != noErr ) goto bail;
 
@@ -208,14 +256,14 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 		bGrabberInited = true;
 		loadSettings();
-		
+
 		if( attemptFramerate >= 0 ){
 			err = SGSetFrameRate(gVideoChannel, IntToFixed(attemptFramerate) );
 			if ( err != noErr ){
 				ofLog(OF_LOG_ERROR,"ofQuickTimeGrabber: initGrabber error setting framerate to %i", attemptFramerate);
-			}		
+			}
 		}
-		
+
 		ofLog(OF_LOG_NOTICE,"end setup ofQuickTimeGrabber");
 		ofLog(OF_LOG_NOTICE,"-------------------------------------\n");
 
@@ -234,7 +282,7 @@ bool ofQuickTimeGrabber::initGrabber(int w, int h){
 
 			bGrabberInited = false;
 			return false;
-			
+
 	//---------------------------------
 	#else
 	//---------------------------------
@@ -351,12 +399,6 @@ void ofQuickTimeGrabber::update(){
 			// was a new frame or not..
 			// or else we will process way more than necessary
 			// (ie opengl is running at 60fps +, capture at 30fps)
-			if (bHavePixelsChanged){
-				
-				#if defined(TARGET_OSX) && defined(__BIG_ENDIAN__)
-					convertPixels(offscreenGWorldPixels, pixels.getPixels(), width, height);
-				#endif
-			}
 		}
 
 		// newness test for quicktime:
@@ -393,7 +435,7 @@ bool  ofQuickTimeGrabber::isFrameNew(){
 //--------------------------------------------------------------------
 float ofQuickTimeGrabber::getWidth(){
 	return pixels.getWidth();
-}	
+}
 
 //--------------------------------------------------------------------
 float ofQuickTimeGrabber::getHeight(){
@@ -421,7 +463,7 @@ void ofQuickTimeGrabber::close(){
 	//---------------------------------
 
 	clearMemory();
-	
+
 }
 
 //--------------------------------------------------------------------

@@ -57,9 +57,10 @@
 			<Add directory="../../../openFrameworks/3d" />
 			<Add directory="../../../openFrameworks/gl" />
 			<Add directory="../../../openFrameworks/math" />
+			<Add directory="../../../openssl/include" />
 			<Add directory="../../../poco/include" />
 			<Add directory="../../../tess2/include" />
-			<Add directory="../../../openssl/include" />
+			<Add directory="../../../openssl/include/openssl" />
 		</Compiler>
 		<Unit filename="../../../openFrameworks/3d/of3dPrimitives.cpp">
 			<Option virtualFolder="openframeworks/3d/" />

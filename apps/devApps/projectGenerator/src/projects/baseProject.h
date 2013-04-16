@@ -1,5 +1,4 @@
 
-
 #pragma once
 
 #include <set>
@@ -9,20 +8,23 @@
 #include "ofAddon.h"
 #include "Utils.h"
 
-class baseProject {
+class baseProject
+{
 
 public:
 
-    enum LibType{
+    enum LibType
+    {
         DEBUG_LIB = 0,
         RELEASE_LIB
     };
 
-    baseProject(){
+    baseProject()
+    {
         bLoaded = false;
     };
 
-    virtual ~baseProject(){};
+    virtual ~baseProject() {};
 
     void setup(string _target);
 
@@ -46,10 +48,16 @@ public:
     virtual void addInclude(string includeName) = 0;
     virtual void addLibrary(string libraryName, LibType libType = RELEASE_LIB) = 0;
 
-	virtual void addAddon(ofAddon & addon);
+    virtual void addAddon(ofAddon & addon);
 
-    string getName() { return projectName;};
-	string getPath() { return projectDir; };
+    string getName()
+    {
+        return projectName;
+    };
+    string getPath()
+    {
+        return projectDir;
+    };
 
     pugi::xml_document doc;
     bool bLoaded;

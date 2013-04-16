@@ -3,9 +3,10 @@
 #include "ofxBaseGui.h"
 #include "ofParameter.h"
 
-class ofxLabel: public ofxBaseGui {
+class ofxLabel: public ofxBaseGui
+{
 public:
-    ofxLabel(){}
+    ofxLabel() {}
     ofxLabel(ofParameter<string> _label, float width = defaultWidth, float height = defaultHeight);
     virtual ~ofxLabel();
 
@@ -13,30 +14,39 @@ public:
     ofxLabel * setup(string labelName, string label, float width = defaultWidth, float height = defaultHeight);
 
     // Abstract methods we must implement, but have no need for!
-    virtual void mouseMoved(ofMouseEventArgs & args){}
-    virtual void mousePressed(ofMouseEventArgs & args){}
-    virtual void mouseDragged(ofMouseEventArgs & args){}
-    virtual void mouseReleased(ofMouseEventArgs & args){}
+    virtual void mouseMoved(ofMouseEventArgs & args) {}
+    virtual void mousePressed(ofMouseEventArgs & args) {}
+    virtual void mouseDragged(ofMouseEventArgs & args) {}
+    virtual void mouseReleased(ofMouseEventArgs & args) {}
 
-	virtual void saveTo(ofBaseSerializer& serializer){};
-	virtual void loadFrom(ofBaseSerializer& serializer){};
+    virtual void saveTo(ofBaseSerializer& serializer) {};
+    virtual void loadFrom(ofBaseSerializer& serializer) {};
 
-    virtual void setValue(float mx, float my, bool bCheckBounds){}
+    virtual void setValue(float mx, float my, bool bCheckBounds) {}
 
     void draw();
 
     template<class ListenerClass>
-    void addListener(ListenerClass * listener, void ( ListenerClass::*method )(string&)){
+    void addListener(ListenerClass * listener, void ( ListenerClass::*method )(string&))
+    {
         label.addListener(listener,method);
     }
 
     template<class ListenerClass>
-    void removeListener(ListenerClass * listener, void ( ListenerClass::*method )(string&)){
+    void removeListener(ListenerClass * listener, void ( ListenerClass::*method )(string&))
+    {
         label.removeListener(listener,method);
     }
 
-    string operator=(string v) { label = v; return v; }
-    operator const string & ()       { return label; }
+    string operator=(string v)
+    {
+        label = v;
+        return v;
+    }
+    operator const string & ()
+    {
+        return label;
+    }
 
     ofAbstractParameter & getParameter();
 

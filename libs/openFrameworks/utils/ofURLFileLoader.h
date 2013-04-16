@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 #include <deque>
 #include <queue>
 
@@ -106,3 +106,4 @@ class ofURLFileLoader : public ofThread  {
 		Poco::Condition condition;
 
 };
+*/

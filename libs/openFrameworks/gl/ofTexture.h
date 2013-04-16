@@ -54,7 +54,6 @@ public:
 		glType = GL_RGB;
 		pixelType = GL_UNSIGNED_BYTE;
 		
-
 		tex_t = 0;
 		tex_u = 0;
 		tex_w = 0;

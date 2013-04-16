@@ -1,4 +1,3 @@
-
 #ifndef VSWINPROJECT_H_
 #define VSWINPROJECT_H_
 
@@ -7,7 +6,8 @@
 #include "ofAddon.h"
 #include "baseProject.h"
 
-class visualStudioProject : public baseProject {
+class visualStudioProject : public baseProject
+{
 
 public:
 
@@ -25,12 +25,12 @@ public:
 
     void addAddon(ofAddon & addon);
 
-	static string LOG_NAME;
+    static string LOG_NAME;
 
-	pugi::xml_document filterXmlDoc;
+    pugi::xml_document filterXmlDoc;
 
 
-	void appendFilter(string folderName);
+    void appendFilter(string folderName);
 
 private:
 

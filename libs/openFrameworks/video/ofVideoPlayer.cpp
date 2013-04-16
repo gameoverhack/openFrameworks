@@ -154,8 +154,7 @@ void ofVideoPlayer::update(){
 						width = player->getWidth();
 						height = player->getHeight();
 
-						if(tex.bAllocated())
-							tex.clear();
+						if(tex.bAllocated()) tex.clear();
 
 						tex.allocate(width, height, ofGetGLTypeFromPixelFormat(internalPixelFormat));
 						tex.loadData(pxls, tex.getWidth(), tex.getHeight(), ofGetGLTypeFromPixelFormat(internalPixelFormat));

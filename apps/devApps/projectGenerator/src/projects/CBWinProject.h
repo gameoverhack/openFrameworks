@@ -13,7 +13,8 @@
 #include "ofAddon.h"
 #include "baseProject.h"
 
-class CBWinProject: virtual public baseProject  {
+class CBWinProject: virtual public baseProject
+{
 public:
 
     void setup();
@@ -22,14 +23,14 @@ public:
     bool loadProjectFile();
     bool saveProjectFile();
 
-	void addSrc(string srcName, string folder);
-	void addInclude(string includeName);
-	void addLibrary(string libraryName, LibType libType = RELEASE_LIB);
+    void addSrc(string srcName, string folder);
+    void addInclude(string includeName);
+    void addLibrary(string libraryName, LibType libType = RELEASE_LIB);
 
-	string getName();
-	string getPath();
+    string getName();
+    string getPath();
 
-	static string LOG_NAME;
+    static string LOG_NAME;
 
 private:
 

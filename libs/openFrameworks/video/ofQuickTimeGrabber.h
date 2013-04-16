@@ -30,12 +30,12 @@ class ofQuickTimeGrabber : public ofBaseVideoGrabber{
 
 		unsigned char			* getPixels();
 		ofPixelsRef		 		getPixelsRef();
-		
+
 		void					close();
 		void					clearMemory();
 
 		void					videoSettings();
-		
+
 		float					getWidth();
 		float					getHeight();
 
@@ -51,8 +51,8 @@ class ofQuickTimeGrabber : public ofBaseVideoGrabber{
 		bool 					bGrabberInited;
 	    ofPixels				pixels;
 		int						attemptFramerate;
-		bool 					bIsFrameNew;	
-		
+		bool 					bIsFrameNew;
+
 		//int						width, height;
 
 		unsigned char *			offscreenGWorldPixels;	// 32 bit: argb (qt k32ARGBPixelFormat)
@@ -65,14 +65,15 @@ class ofQuickTimeGrabber : public ofBaseVideoGrabber{
 		bool					bSgInited;
 		string					deviceName;
 		SGGrabCompleteBottleUPP	myGrabCompleteProc;
-		
+
 		bool					qtInitSeqGrabber();
 		bool					qtCloseSeqGrabber();
 		bool					qtSelectDevice(int deviceNumber, bool didWeChooseADevice);
 
 		bool					saveSettings();
 		bool					loadSettings();
-		
+
+        ofPixelFormat           internalPixelFormat;
 
 };
 

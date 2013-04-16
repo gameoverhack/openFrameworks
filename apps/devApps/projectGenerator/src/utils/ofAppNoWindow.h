@@ -17,21 +17,25 @@
 
 class ofBaseApp;
 
-class ofAppNoWindow : public ofAppBaseWindow {
+class ofAppNoWindow : public ofAppBaseWindow
+{
 
 public:
-	ofAppNoWindow();
-	~ofAppNoWindow(){}
+    ofAppNoWindow();
+    ~ofAppNoWindow() {}
 
-	void runAppViaInfiniteLoop(ofBaseApp * appPtr);
+    void runAppViaInfiniteLoop(ofBaseApp * appPtr);
 
-	static void exitApp();
+    static void exitApp();
 
-	int			getFrameNum();
-	float		getFrameRate();
-	void		setFrameRate(float targetRate);
-	
-	double		getLastFrameTime() { return lastFrameTime; }
+    int			getFrameNum();
+    float		getFrameRate();
+    void		setFrameRate(float targetRate);
+
+    double		getLastFrameTime()
+    {
+        return lastFrameTime;
+    }
 
 
 

@@ -139,10 +139,20 @@ inline ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 	}
 }
 
+#define OF_ARGB !GL_BGRA // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8 so we define this custom type
+
 inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
+    case OF_PIXELS_ARGB:
+        return OF_ARGB;
+    case OF_PIXELS_UYVY:
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        return GL_RGB_422_APPLE;
+#endif
 	case OF_PIXELS_BGRA:
-		return GL_RGBA;
+		return GL_BGRA;
+    case OF_PIXELS_ABGR:
+        return GL_ABGR_EXT;
 	case OF_PIXELS_MONO:
 		return GL_LUMINANCE;
 	case OF_PIXELS_RGB:
@@ -151,7 +161,7 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 		return GL_RGBA;
     case OF_PIXELS_RGB565:
 #ifdef TARGET_OPENGLES 
-    	return GL_RGB;
+        return GL_RGB565_OES;
 #else
         return GL_RGB5;
 #endif
