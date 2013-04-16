@@ -9,7 +9,7 @@ void ofDrawAxis(float size) {
 	// draw x axis
 	ofSetColor(ofColor::red);
 	ofLine(0, 0, 0, size, 0, 0);
-	
+
 	// draw y axis
 	ofSetColor(ofColor::green);
 	ofLine(0, 0, 0, 0, size, 0);
@@ -17,17 +17,17 @@ void ofDrawAxis(float size) {
 	// draw z axis
 	ofSetColor(ofColor::blue);
 	ofLine(0, 0, 0, 0, 0, size);
-	
+
 	ofPopStyle();
 }
 
 //--------------------------------------------------------------
 void ofDrawGrid(float scale, float ticks, bool labels, bool x, bool y, bool z) {
-	
+
 	ofColor c(255,0,0);
-	
+
 	ofPushStyle();
-	
+
 	if (x) {
 		c.setHsb(0.0f, 200.0f, 255.0f);
 		ofSetColor(c);
@@ -49,7 +49,7 @@ void ofDrawGrid(float scale, float ticks, bool labels, bool x, bool y, bool z) {
 		ofDrawGridPlane(scale, ticks, labels);
 		ofPopMatrix();
 	}
-	
+
 	if (labels) {
 		ofPushStyle();
 		ofSetColor(255, 255, 255);
@@ -66,10 +66,10 @@ void ofDrawGrid(float scale, float ticks, bool labels, bool x, bool y, bool z) {
 
 //--------------------------------------------------------------
 void ofDrawGridPlane(float scale, float ticks, bool labels) {
-	
+
 	float minor = scale / ticks;
 	float major =  minor * 2.0f;
-	
+
 	ofPushStyle();
 	for (int iDimension=0; iDimension<2; iDimension++)
 	{
@@ -78,11 +78,11 @@ void ofDrawGridPlane(float scale, float ticks, bool labels) {
 			//major major
 			if (fabs(yz) == scale || yz == 0)
 				ofSetLineWidth(2);
-			
+
 			//major
 			else if (yz / major == floor(yz / major) )
 				ofSetLineWidth(1.5);
-			
+
 			//minor
 			else
 				ofSetLineWidth(1);
@@ -93,31 +93,31 @@ void ofDrawGridPlane(float scale, float ticks, bool labels) {
 		}
 	}
 	ofPopStyle();
-	
+
 	if (labels) {
 		//draw numbers on axes
 		ofPushStyle();
 		ofSetColor(255, 255, 255);
-		
+
 		float accuracy = ceil(-log(scale/ticks)/log(10.0f));
-		
+
 		ofSetDrawBitmapMode(OF_BITMAPMODE_MODEL_BILLBOARD);
 		for (float yz = -scale; yz<=scale; yz+=minor)
 		{
 			ofDrawBitmapString(ofToString(yz, accuracy), 0, yz, 0);
-			ofDrawBitmapString(ofToString(yz, accuracy), 0, 0, yz);		
+			ofDrawBitmapString(ofToString(yz, accuracy), 0, 0, yz);
 		}
 		ofPopStyle();
 	}
-	
+
 }
 
 //--------------------------------------------------------------
 void ofDrawArrow(const ofVec3f& start, const ofVec3f& end, float headSize) {
-	
+
 	//draw line
 	ofLine(start, end);
-	
+
 	//draw cone
 	ofMatrix4x4 mat;
 	mat.makeRotationMatrix(ofVec3f(0,0,1), end - start);
@@ -125,21 +125,21 @@ void ofDrawArrow(const ofVec3f& start, const ofVec3f& end, float headSize) {
 	ofTranslate(end);
 	ofMultMatrix(mat.getPtr());
 	ofTranslate(0,0,-headSize);
-	ofDrawCone(headSize, headSize);
+	//ofDrawCone(headSize, headSize);
 	ofPopMatrix();
 }
 //--------------------------------------------------------------
 void ofDrawRotationAxes(float radius, float stripWidth, int circleRes){
-	
+
 	ofMesh axisXMesh;
 	axisXMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-	
+
 	ofMesh axisYMesh;
 	axisYMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-	
+
 	ofMesh axisZMesh;
 	axisZMesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-	
+
 	for (int j = 0; j<=circleRes; j++) {
 		float x = cos(TWO_PI * j/circleRes);
 		float y = sin(TWO_PI * j/circleRes);
@@ -147,24 +147,24 @@ void ofDrawRotationAxes(float radius, float stripWidth, int circleRes){
 		axisXMesh.addVertex(ofVec3f(x*radius, y*radius, -stripWidth));
 		axisXMesh.addColor(ofFloatColor(ofFloatColor::red));
 		axisXMesh.addVertex(ofVec3f(x*radius, y*radius,  stripWidth));
-		
+
 		axisYMesh.addColor(ofFloatColor(ofFloatColor::blue));
 		axisYMesh.addVertex(ofVec3f(x*radius, -stripWidth, y*radius));
 		axisYMesh.addColor(ofFloatColor(ofFloatColor::blue));
 		axisYMesh.addVertex(ofVec3f(x*radius,  stripWidth, y*radius));
-		
+
 		axisZMesh.addColor(ofFloatColor(ofFloatColor::green));
 		axisZMesh.addVertex(ofVec3f(-stripWidth, x*radius, y*radius));
 		axisZMesh.addColor(ofFloatColor(ofFloatColor::green));
 		axisZMesh.addVertex(ofVec3f( stripWidth, x*radius, y*radius));
 	}
-	
+
 	glEnable(GL_DEPTH_TEST);
 	axisXMesh.draw();
 	axisYMesh.draw();
 	axisZMesh.draw();
 	ofDrawAxis(radius);
 	glDisable(GL_DEPTH_TEST);
-	
+
 }
 

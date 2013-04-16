@@ -4,7 +4,7 @@
 
 //---------------------------------------------------------------------------
 ofBaseVideoGrabber::~ofBaseVideoGrabber(){
-	
+
 }
 
 //---------------------------------------------------------------------------
@@ -82,6 +82,21 @@ void ofBaseVideoPlayer::setPosition(float pct){
 //---------------------------------------------------------------------------
 void ofBaseVideoPlayer::setVolume(float volume){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setVolume not implemented");
+}
+
+//---------------------------------------------------------------------------
+float ofBaseVideoPlayer::getVolume(){
+	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getVolume not implemented");
+}
+
+//---------------------------------------------------------------------------
+void ofBaseVideoPlayer::setPan(float pan){
+	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setPan not implemented");
+}
+
+//---------------------------------------------------------------------------
+float ofBaseVideoPlayer::getPan(){
+	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getPan not implemented");
 }
 
 //---------------------------------------------------------------------------

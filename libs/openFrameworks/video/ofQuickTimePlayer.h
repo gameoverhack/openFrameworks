@@ -15,29 +15,29 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		~ofQuickTimePlayer();
 
 		 bool			loadMovie(string name);
-		 void			closeMovie();	
+		 void			closeMovie();
 		 void			close();
 		 void			update();
 
 		 void			play();
 		 void			stop();
-		 
+
 		 void			clearMemory();
-		 
+
 		bool            setPixelFormat(ofPixelFormat pixelFormat);
-		ofPixelFormat   getPixelFormat();		 
-	
+		ofPixelFormat   getPixelFormat();
+
 		 bool 			isFrameNew();
 		 unsigned char * 	getPixels();
 		 ofPixelsRef		getPixelsRef();
 		 const ofPixels&	getPixelsRef() const;
-		
+
 		 float 			getWidth();
 		 float 			getHeight();
 
 		 bool			isPaused();
 		 bool			isLoaded();
-		 bool			isPlaying();		 
+		 bool			isPlaying();
 
 		 float 			getPosition();
 		 float 			getDuration();
@@ -48,21 +48,24 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
 		 void 			setPosition(float pct);
 		 void 			setVolume(float volume);
+		 void           setPan(float pan); // L -1.0...1.0 R
 		 void 			setLoopState(ofLoopType state);
 		 void   		setSpeed(float speed);
 		 void			setFrame(int frame);  // frame 0 = first frame...
 		 void 			setPaused(bool bPause);
 
+         float 		    getVolume();
+         float 		    getPan();
 		 int			getCurrentFrame();
 
 		 void			firstFrame();
 		 void			nextFrame();
 		 void			previousFrame();
-		 
+
 		bool 				bHavePixelsChanged;
-		 
-		 
-		
+
+
+
 	protected:
 		void createImgMemAndGWorld();
 		void start();
@@ -82,8 +85,8 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		bool 				bPlaying;
 		bool 				bPaused;
 		bool 				bIsFrameNew;			// if we are new
-		float				speed;		
-		
+		float				speed;
+
 		MovieDrawingCompleteUPP myDrawCompleteProc;
 		MovieController  	thePlayer;
 		GWorldPtr 			offscreenGWorld;
