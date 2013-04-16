@@ -54,6 +54,8 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 void			setFrame(int frame);  // frame 0 = first frame...
 		 void 			setPaused(bool bPause);
 
+         float 		    getVolume();
+         float 		    getPan();
 		 int			getCurrentFrame();
 
 		 void			firstFrame();

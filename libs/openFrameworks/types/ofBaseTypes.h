@@ -263,6 +263,8 @@ public:
 	virtual void   				setSpeed(float speed);
 	virtual void				setFrame(int frame);  // frame 0 = first frame...
 
+    virtual float 				getVolume();
+    virtual float 				getPan();
 	virtual int					getCurrentFrame();
 	virtual int					getTotalNumFrames();
 	virtual ofLoopType			getLoopState();

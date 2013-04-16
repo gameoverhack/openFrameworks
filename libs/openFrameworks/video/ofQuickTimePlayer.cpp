@@ -495,7 +495,26 @@ void ofQuickTimePlayer::setVolume(float volume){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
+}
 
+//--------------------------------------------------------
+float ofQuickTimePlayer::getVolume(){
+    float volume = 0.0f;
+	if( !isLoaded() ){
+		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
+		return volume;
+	}
+
+	//--------------------------------------
+	#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	//--------------------------------------
+
+    volume = GetMovieVolume(moviePtr);
+    return volume;
+
+	//--------------------------------------
+	#endif
+	//--------------------------------------
 }
 
 //---------------------------------------------------------------------------
@@ -514,7 +533,26 @@ void ofQuickTimePlayer::setPan(float pan){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
+}
 
+//---------------------------------------------------------------------------
+float ofQuickTimePlayer::getPan(){
+    float pan = 0.0f;
+	if( !isLoaded() ){
+		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
+		return pan;
+	}
+
+	//--------------------------------------
+	#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	//--------------------------------------
+
+	GetMovieAudioBalance(moviePtr, &pan, 0);
+	return pan;
+
+	//--------------------------------------
+	#endif
+	//--------------------------------------
 }
 
 //--------------------------------------------------------
