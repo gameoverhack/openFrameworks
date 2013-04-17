@@ -100,7 +100,7 @@ bool ofDirectShowGrabber::setPixelFormat(ofPixelFormat pixelFormat){
 
 //---------------------------------------------------------------------------
 ofPixelFormat ofDirectShowGrabber::getPixelFormat(){
-	//note if you support more than one pixel format you will need to return a ofPixelFormat variable. 
+	//note if you support more than one pixel format you will need to return a ofPixelFormat variable.
 	return OF_PIXELS_RGB;
 }
 

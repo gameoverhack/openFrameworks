@@ -19,6 +19,7 @@ ofVideoGrabber::ofVideoGrabber(){
 	bInitialized		= false;
 	grabberRunning		= false;
 	RequestedDeviceID	= -1;
+	RequestedMediaSubType = -1;
 	internalPixelFormat = OF_PIXELS_RGB;
 	desiredFramerate 	= -1;
 
@@ -63,6 +64,10 @@ bool ofVideoGrabber::initGrabber(int w, int h, bool setUseTexture){
 		grabber->setDeviceID(RequestedDeviceID);
 	}
 
+    if( RequestedMediaSubType >= 0 ){
+		grabber->setRequestedMediaSubType(RequestedMediaSubType);
+	}
+
 	setPixelFormat(internalPixelFormat); //this safely handles checks for supported format
 
 	if( desiredFramerate!=-1 ){
@@ -101,9 +106,7 @@ ofPixelFormat ofVideoGrabber::getPixelFormat(){
 
 //--------------------------------------------------------------------
 void ofVideoGrabber::setRequestedMediaSubType(int mediatype){
-    if(	grabber != NULL ){
-        grabber->setRequestedMediaSubType(mediatype);
-    }
+    RequestedMediaSubType = mediatype;
 }
 
 //--------------------------------------------------------------------

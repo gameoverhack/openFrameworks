@@ -94,7 +94,7 @@ class ofVideoGrabber : public ofBaseVideoGrabber,public ofBaseVideoDraws{
 		bool bInitialized;
 		ofPtr<ofBaseVideoGrabber> grabber;
 		int RequestedDeviceID;
-
+        int RequestedMediaSubType;
 		bool grabberRunning; //this keeps track of whether the grabber opened sucessfully and is still open. //TODO: maybe expose this in a method?
 
 		ofPixelFormat internalPixelFormat;
