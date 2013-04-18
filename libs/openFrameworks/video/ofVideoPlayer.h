@@ -72,6 +72,8 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
     
         bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
     
+        vector< vector<float> > extractAudio(int trackIndex);
+    
 		void 				setUseTexture(bool bUse);
 		ofTexture &			getTextureReference();
 		void 				draw(float x, float y, float w, float h);

@@ -270,6 +270,8 @@ public:
     
     virtual bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
     
+    virtual vector< vector<float> > extractAudio(int trackIndex);
+    
 	virtual int					getCurrentFrame();
 	virtual int					getTotalNumFrames();
 	virtual ofLoopType			getLoopState();

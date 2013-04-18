@@ -981,6 +981,150 @@ bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
+vector< vector<float> > ofQuickTimePlayer::extractAudio(int trackIndex){
+    
+    vector< vector<float> > audio;
+    
+    OSStatus err = noErr;
+    
+    MovieAudioExtractionRef extractionSessionRef = nil;
+    AudioStreamBasicDescription asbd;
+    AudioBufferList * bufferList;
+    
+    err = MovieAudioExtractionBegin(moviePtr, 0, &extractionSessionRef);
+    
+//    AudioStreamBasicDescription audioFormat;
+//    memset(&audioFormat, 0, sizeof(audioFormat));
+//    audioFormat.mSampleRate = 48000;
+//    audioFormat.mFormatID = kAudioFormatLinearPCM;
+//    audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | 
+//    kAudioFormatFlagIsPacked | 
+//    kAppleLosslessFormatFlag_16BitSourceData | 
+//    kAudioFormatFlagIsNonInterleaved;
+//    audioFormat.mBytesPerPacket = 4;
+//    audioFormat.mFramesPerPacket = 1;
+//    audioFormat.mChannelsPerFrame = 1;
+//    audioFormat.mBytesPerFrame = 4;
+//    audioFormat.mBitsPerChannel = 16;
+//    
+//    err = MovieAudioExtractionSetProperty(extractionSessionRef,
+//                                          kQTPropertyClass_MovieAudioExtraction_Audio,
+//                                          kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
+//                                          sizeof (audioFormat), &audioFormat);
+    
+    err = MovieAudioExtractionGetProperty(extractionSessionRef,
+                                          kQTPropertyClass_MovieAudioExtraction_Audio,
+                                          kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
+                                          sizeof (asbd), &asbd, nil);
+    
+    if (err){
+        ofLogError() << "MovieAudioExtractionGetProperty Error: " << err;
+    }
+    
+    bufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList) + asbd.mChannelsPerFrame*sizeof(AudioBuffer));
+    bufferList->mNumberBuffers = asbd.mChannelsPerFrame;
+    
+    ofLogNotice()   << " format: " << asbd.mFormatID 
+                    << " samplerate: " << asbd.mSampleRate
+                    << " flags: " << asbd.mFormatFlags
+                    << " channels: " << asbd.mChannelsPerFrame
+                    << " frames: " << asbd.mFramesPerPacket
+                    << " bits: " << asbd.mBitsPerChannel
+                    << " bytes/frame: " << asbd.mBytesPerFrame
+                    << " bytes/pack: " << asbd.mBytesPerPacket;
+    
+    
+    if((asbd.mFormatFlags & kAudioFormatFlagIsFloat) == kAudioFormatFlagIsFloat){
+        cout << "kAudioFormatFlagIsFloat" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsBigEndian) == kAudioFormatFlagIsBigEndian){
+        cout << "kAudioFormatFlagIsBigEndian" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsSignedInteger) == kAudioFormatFlagIsSignedInteger){
+        cout << "kAudioFormatFlagIsSignedInteger" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsPacked) == kAudioFormatFlagIsPacked){
+        cout << "kAudioFormatFlagIsPacked" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsAlignedHigh) == kAudioFormatFlagIsAlignedHigh){
+        cout << "kAudioFormatFlagIsAlignedHigh" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) == kAudioFormatFlagIsNonInterleaved){
+        cout << "kAudioFormatFlagIsNonInterleaved" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagIsNonMixable) == kAudioFormatFlagIsNonMixable){
+        cout << "kAudioFormatFlagIsNonMixable" << endl;
+    }
+    if((asbd.mFormatFlags & kAudioFormatFlagsAreAllClear) == kAudioFormatFlagsAreAllClear){
+        cout << "kAudioFormatFlagsAreAllClear" << endl;
+    }
+    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_16BitSourceData) == kAppleLosslessFormatFlag_16BitSourceData){
+        cout << "kAppleLosslessFormatFlag_16BitSourceData" << endl;
+    }
+    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_20BitSourceData) == kAppleLosslessFormatFlag_20BitSourceData){
+        cout << "kAppleLosslessFormatFlag_20BitSourceData" << endl;
+    }
+    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_24BitSourceData) == kAppleLosslessFormatFlag_24BitSourceData){
+        cout << "kAppleLosslessFormatFlag_24BitSourceData" << endl;
+    }
+    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_32BitSourceData) == kAppleLosslessFormatFlag_32BitSourceData){
+        cout << "kAppleLosslessFormatFlag_32BitSourceData" << endl;
+    }
+    
+    int estimatedFrameCount = getTotalNumFrames();
+    
+    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
+        AudioBuffer audioBuffer = bufferList->mBuffers[i];
+        audioBuffer.mNumberChannels = asbd.mChannelsPerFrame;
+        audioBuffer.mDataByteSize = estimatedFrameCount*asbd.mBytesPerFrame;
+        audioBuffer.mData = calloc(1, estimatedFrameCount*asbd.mBytesPerFrame);
+        bufferList->mBuffers[i] = audioBuffer;
+    }
+    
+    UInt32 numFrames = 512;
+    UInt32 flags;
+    UInt32 actualFrameCount = 0;
+    
+    while (true){
+        err = MovieAudioExtractionFillBuffer(extractionSessionRef, &numFrames, bufferList, &flags);
+        if (err){
+            ofLogError() << "MovieAudioExtractionFillBuffer Error: " << err;
+        }
+        actualFrameCount += 1;
+        
+        if (flags & kQTMovieAudioExtractionComplete){
+            ofLogNotice() << "end of movie";
+            break;
+        }
+    }
+    
+    ofLogNotice() << "Extracted: " << actualFrameCount << " actual frames vs " << estimatedFrameCount*asbd.mBytesPerFrame << " estimated frames";
+    
+    audio.resize(asbd.mChannelsPerFrame);
+    
+    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
+        vector<float> channel;
+        channel.resize(actualFrameCount);
+        ofLogNotice() << "channel: " << i;
+        Float32 *frames = (Float32 *)bufferList->mBuffers[i].mData;
+        for (int j = 0; j < actualFrameCount; j ++){
+            channel[j] = frames[j];
+        }
+        audio[i] = channel;
+    }
+    
+    err = MovieAudioExtractionEnd(extractionSessionRef);
+    if (err){
+        ofLogError() << "MovieAudioExtractionEnd Error: " << err;
+        
+    }
+    
+    free(bufferList);
+    
+    return audio;
+}
+
+//---------------------------------------------------------------------------
 bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     
     QTAudioContextRef audioContext = NULL;

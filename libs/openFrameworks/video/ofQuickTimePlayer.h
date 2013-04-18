@@ -75,6 +75,8 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
     
          bool           setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
 
+         vector< vector<float> > extractAudio(int trackIndex);
+    
 		 int			getCurrentFrame();
 
 		 void			firstFrame();

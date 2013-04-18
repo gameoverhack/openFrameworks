@@ -101,6 +101,13 @@ bool ofBaseVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
+vector< vector<float> >  ofBaseVideoPlayer::extractAudio(int trackIndex){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::extractAudio not implemented");
+    vector< vector<float> > v;
+    return v;
+}
+
+//---------------------------------------------------------------------------
 void ofBaseVideoPlayer::setPaused(bool bPause){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::setPaused not implemented");
 }
