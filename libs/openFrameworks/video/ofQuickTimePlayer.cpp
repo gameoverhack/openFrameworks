@@ -231,6 +231,7 @@ void ofQuickTimePlayer::closeMovie(){
 void ofQuickTimePlayer::createImgMemAndGWorld(){
     
 	Rect movieRect;
+
     MacSetRect(&movieRect, 0, 0, width, height);
     
     switch(internalPixelFormat){
@@ -551,7 +552,64 @@ void ofQuickTimePlayer::setVolume(float volume){
 	//--------------------------------------
 	#endif
 	//--------------------------------------
+}
 
+//--------------------------------------------------------
+float ofQuickTimePlayer::getVolume(){
+    float volume = 0.0f;
+	if( !isLoaded() ){
+		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
+		return volume;
+	}
+
+	//--------------------------------------
+	#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	//--------------------------------------
+
+    volume = GetMovieVolume(moviePtr);
+    return volume;
+
+	//--------------------------------------
+	#endif
+	//--------------------------------------
+}
+
+//---------------------------------------------------------------------------
+void ofQuickTimePlayer::setPan(float pan){
+	if( !isLoaded() ){
+		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
+		return;
+	}
+
+	//--------------------------------------
+	#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	//--------------------------------------
+
+	SetMovieAudioBalance(moviePtr, pan, 0);
+
+	//--------------------------------------
+	#endif
+	//--------------------------------------
+}
+
+//---------------------------------------------------------------------------
+float ofQuickTimePlayer::getPan(){
+    float pan = 0.0f;
+	if( !isLoaded() ){
+		ofLog(OF_LOG_ERROR, "ofQuickTimePlayer: movie not loaded!");
+		return pan;
+	}
+
+	//--------------------------------------
+	#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	//--------------------------------------
+
+	GetMovieAudioBalance(moviePtr, &pan, 0);
+	return pan;
+
+	//--------------------------------------
+	#endif
+	//--------------------------------------
 }
 
 //--------------------------------------------------------

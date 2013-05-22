@@ -46,45 +46,49 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         ofPixelsRef		getPixelsRef();
         const ofPixels&	getPixelsRef() const;
 		
-		 float 			getWidth();
-		 float 			getHeight();
+        float 			getWidth();
+        float 			getHeight();
 
-		 bool			isPaused();
-		 bool			isLoaded();
-		 bool			isPlaying();		 
+        bool			isPaused();
+        bool			isLoaded();
+        bool			isPlaying();
 
-		 float 			getPosition();
-		 float 			getDuration();
-		 int			getTotalNumFrames();
-		 float			getSpeed();
-		 bool			getIsMovieDone();
-		 ofLoopType 	getLoopState();
+        float 			getPosition();
+        float 			getDuration();
+        int             getTotalNumFrames();
+        float			getSpeed();
+        bool			getIsMovieDone();
+        ofLoopType      getLoopState();
     
-         vector<string> getAudioDevices();
-         int            getAudioTrackList();
+        vector<string> getAudioDevices();
+        int            getAudioTrackList();
 
-		 void 			setPosition(float pct);
-		 void 			setVolume(float volume);
-		 void 			setLoopState(ofLoopType state);
-		 void   		setSpeed(float speed);
-		 void			setFrame(int frame);  // frame 0 = first frame...
-		 void 			setPaused(bool bPause);
-    
-         bool           setAudioDevice(int ID);
-         bool           setAudioDevice(string deviceName);
-    
-         bool           setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
+        void 			setPosition(float pct);
+        void 			setVolume(float volume);
+        void            setPan(float pan); // L -1.0...1.0 R
+        void 			setLoopState(ofLoopType state);
+        void            setSpeed(float speed);
+        void			setFrame(int frame);  // frame 0 = first frame...
+        void 			setPaused(bool bPause);
 
-         vector< vector<float> > extractAudio(int trackIndex);
+        bool            setAudioDevice(int ID);
+        bool            setAudioDevice(string deviceName);
     
-		 int			getCurrentFrame();
+        bool            setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
 
-		 void			firstFrame();
-		 void			nextFrame();
-		 void			previousFrame();
-		 
-        bool 			bHavePixelsChanged;
-    
+        vector< vector<float> > extractAudio(int trackIndex);
+
+
+        float 		    getVolume();
+        float 		    getPan();
+        int             getCurrentFrame();
+
+        void			firstFrame();
+        void			nextFrame();
+        void			previousFrame();
+
+		bool 				bHavePixelsChanged;
+
 	protected:
 		
         void createImgMemAndGWorld();
@@ -109,8 +113,8 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		bool 				bPlaying;
 		bool 				bPaused;
 		bool 				bIsFrameNew;			// if we are new
-		float				speed;		
-		
+		float				speed;
+
 		MovieDrawingCompleteUPP myDrawCompleteProc;
 		MovieController  	thePlayer;
 		GWorldPtr 			offscreenGWorld;
