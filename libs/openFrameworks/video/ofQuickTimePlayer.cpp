@@ -1030,6 +1030,7 @@ bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
     free(layout);
     
     if(ok){
+        MoviesTask(moviePtr, 0);
         return true;
     }else{
         ofLogError() << "Could not assign the new channel layout";
@@ -1188,6 +1189,7 @@ bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     QTAudioContextRef audioContext = NULL;
     if(QTAudioContextCreateForAudioDevice(kCFAllocatorDefault, qtDevice.deviceUID, /*options*/ NULL, &audioContext) == noErr){
         if(SetMovieAudioContext(moviePtr, audioContext) == noErr){
+            MoviesTask(moviePtr, 0);
             return true;
         }
     }
