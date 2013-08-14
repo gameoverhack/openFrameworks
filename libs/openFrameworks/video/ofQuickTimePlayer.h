@@ -78,7 +78,6 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
         vector< vector<float> > extractAudio(int trackIndex);
 
-
         float 		    getVolume();
         float 		    getPan();
         int             getCurrentFrame();
@@ -87,21 +86,24 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         void			nextFrame();
         void			previousFrame();
 
-		bool 				bHavePixelsChanged;
+		bool 			bHavePixelsChanged;
 
 	protected:
 		
-        void createImgMemAndGWorld();
+        void    createImgMemAndGWorld();
     
-        bool createAudioContext(qtAudioDevice qtDevice);
-        string getAudioChannelAsString(AudioChannelLabel label);
+        bool    createAudioContext(qtAudioDevice qtDevice);
+        string  getAudioChannelAsString(AudioChannelLabel label);
 
-		void start();
+		void    start();
 
 		ofPixels		 	pixels;
 		int					width, height;
 		bool				bLoaded;
 
+    
+        string              filePath;
+    
 		//these are public because the ofQuickTimePlayer implementation has some callback functions that need access
 		//todo - fix this
 

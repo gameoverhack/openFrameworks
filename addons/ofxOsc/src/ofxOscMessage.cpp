@@ -89,7 +89,7 @@ int32_t ofxOscMessage::getArgAsInt32( int index ) const
 	{
 	    if ( getArgType( index ) == OFXOSC_TYPE_FLOAT )
         {
-	    	ofLog(OF_LOG_WARNING, "ofxOscMessage:getArgAsInt32: converting int32 to float for argument %i", index );
+	    	ofLog(OF_LOG_WARNING, "ofxOscMessage:getArgAsInt32: converting float to int32 for argument %i", index );
             return ((ofxOscArgFloat*)args[index])->get();
         }
         else

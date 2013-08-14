@@ -106,7 +106,7 @@ ofQuickTimePlayer::ofQuickTimePlayer (){
 	//--------------------------------------------------------------
 	#endif
 	//--------------------------------------------------------------
-
+    filePath                    = "";
 	bLoaded 					= false;
 	width 						= 0;
 	height						= 0;
@@ -122,7 +122,7 @@ ofQuickTimePlayer::~ofQuickTimePlayer(){
 
 	closeMovie();
     clearMemory();
-
+    
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -212,6 +212,7 @@ void ofQuickTimePlayer::closeMovie(){
 	    DisposeMovie (moviePtr);
 		DisposeMovieDrawingCompleteUPP(myDrawCompleteProc);
 
+        filePath = "";
 		moviePtr = NULL;
 
     }
@@ -342,7 +343,7 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::loadMovie(string name){
 
-
+    
 	//--------------------------------------
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
@@ -350,7 +351,7 @@ bool ofQuickTimePlayer::loadMovie(string name){
 		initializeQuicktime();			// init quicktime
 		closeMovie();					// if we have a movie open, close it
 		bLoaded 				= false;	// try to load now
-
+        filePath                = name;
 
     // from : https://github.com/openframeworks/openFrameworks/issues/244
     // http://developer.apple.com/library/mac/#documentation/QuickTime/RM/QTforWindows/QTforWindows/C-Chapter/3BuildingQuickTimeCa.html
@@ -437,7 +438,8 @@ bool ofQuickTimePlayer::loadMovie(string name){
 		bPlaying 				= false;
 		bHavePixelsChanged 		= false;
 		speed 					= 1;
-
+    
+//        bGlobalLoad = false;
 		return true;
 
 	//--------------------------------------
@@ -1186,16 +1188,24 @@ vector< vector<float> > ofQuickTimePlayer::extractAudio(int trackIndex){
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){
     
+    bool ok = false;
     QTAudioContextRef audioContext = NULL;
+    
     if(QTAudioContextCreateForAudioDevice(kCFAllocatorDefault, qtDevice.deviceUID, /*options*/ NULL, &audioContext) == noErr){
+        ofLogVerbose() << "ofQuickTimePlayer::createAudioContext: Audio context CRE ok: " << filePath << " " << bLoaded;
         if(SetMovieAudioContext(moviePtr, audioContext) == noErr){
-            MoviesTask(moviePtr, 0);
-            return true;
+            ofLogVerbose() << "ofQuickTimePlayer::createAudioContext: Audio context SET ok: " << filePath << " " << bLoaded;
+            ok = true;
+        }else{
+            ofLogError() << "ofQuickTimePlayer::createAudioContext: Audio context SET FAIL: " << filePath << " " << bLoaded;
         }
+    }else{
+        ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
     }
-    // should only get here on error
-    ofLogError() << "ofQuickTimePlayer::createAudioContext: could not create audio context for: " << qtDevice.deviceName;
-    return false;
+    
+    QTAudioContextRelease(audioContext);    // this is super IMPORTANT!!
+                                            // thank you: https://code.google.com/p/simpledj/source/browse/trunk/QTMovie%2BSimpleDJ.m?spec=svn2&r=2
+    return ok;
     
 }
 

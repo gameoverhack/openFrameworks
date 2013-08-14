@@ -151,8 +151,10 @@ inline int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 #endif
 	case OF_PIXELS_BGRA:
 		return GL_BGRA;
+#ifndef TARGET_OPENGLES 
     case OF_PIXELS_ABGR:
         return GL_ABGR_EXT;
+#endif
 	case OF_PIXELS_MONO:
 		return GL_LUMINANCE;
 	case OF_PIXELS_RGB:

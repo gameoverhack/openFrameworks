@@ -81,8 +81,8 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 		case GL_RGB: return "GL_RGB";
 #ifndef TARGET_OPENGLES
 		case GL_RGB8: return "GL_RGB8";
-#endif
         case GL_ABGR_EXT: return "GL_ABGR_EXT";
+#endif
         case GL_BGRA: return "GL_BGRA";
         case OF_ARGB: return "OF_ARGB"; // there is no GL_ARGB but we can use GL_BGRA and GL_UNSIGNED_INT_8_8_8_8
 		case GL_LUMINANCE: return "GL_LUMINANCE";
@@ -134,6 +134,7 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
 			glType = GL_UNSIGNED_SHORT_8_8_APPLE;
             break;
 #endif
+#ifndef TARGET_OPENGLES
         case GL_ABGR_EXT:
             glFormat = GL_ABGR_EXT;
 			glType = GL_UNSIGNED_BYTE;
@@ -146,7 +147,6 @@ void ofGetGlFormatAndType(int glInternalFormat, int& glFormat, int& glType) {
             glFormat = GL_BGRA;
 			glType = GL_UNSIGNED_INT_8_8_8_8_REV;
             break;
-#ifndef TARGET_OPENGLES
 		// 16-bit unsigned short formats
 		case GL_RGBA16:
 			glFormat = GL_RGBA;
