@@ -101,11 +101,17 @@ bool ofBaseVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
-vector< vector<float> >  ofBaseVideoPlayer::extractAudio(int trackIndex){
-    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::extractAudio not implemented");
-    vector< vector<float> > v;
-    return v;
+bool  ofBaseVideoPlayer::replaceAudioWithFile(string path){
+    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::replaceAudioWithFile not implemented");
+    return false;
 }
+
+//---------------------------------------------------------------------------
+//vector< vector<float> >  ofBaseVideoPlayer::extractAudio(int trackIndex){
+//    ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::extractAudio not implemented");
+//    vector< vector<float> > v;
+//    return v;
+//}
 
 //---------------------------------------------------------------------------
 void ofBaseVideoPlayer::setPaused(bool bPause){

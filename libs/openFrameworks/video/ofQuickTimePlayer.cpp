@@ -4,48 +4,50 @@
 #ifndef TARGET_LINUX
 #ifdef  OF_VIDEO_PLAYER_QUICKTIME
 
-bool  	createMovieFromPath(char * path, Movie &movie);
-bool 	createMovieFromPath(char * path, Movie &movie){
-
-	Boolean 	isdir			= false;
+void    createFSSpecFromPath(char * path, FSSpec& theFSSpec);
+void    createFSSpecFromPath(char * path, FSSpec& theFSSpec){
+    Boolean 	isdir			= false;
 	OSErr 		result 			= 0;
-	FSSpec 		theFSSpec;
-
+    
 	short 		actualResId 	= DoTheRightThing;
+    
+#ifdef TARGET_WIN32
+    result = NativePathNameToFSSpec (path, &theFSSpec, 0);
+    if (result != noErr) {
+        ofLogError() << "NativePathNameToFSSpec failed with error: " << result << " for " << path << endl;
+        return false;
+    }
+    
+#endif
+    
+#ifdef TARGET_OSX
+    FSRef 		fsref;
+    result = FSPathMakeRef((const UInt8*)path, &fsref, &isdir);
+    if (result) {
+        ofLogError() << "FSPathMakeRef failed with error: " << result << " for " << path << endl;
+        return false;
+    }
+    result = FSGetCatalogInfo(&fsref, kFSCatInfoNone, NULL, NULL, &theFSSpec, NULL);
+    if (result) {
+        ofLogError() << "FSGetCatalogInfo failed with error: " << result << " for " << path << endl;
+        return false;
+    }
+#endif
+}
 
-	#ifdef TARGET_WIN32
-		result = NativePathNameToFSSpec (path, &theFSSpec, 0);
-		if (result != noErr) {
-			ofLog(OF_LOG_ERROR,"NativePathNameToFSSpec failed %d", result);
-			ofLog(OF_LOG_ERROR,"Error loading movie");
-			return false;
-		}
+bool  	createMovieFromPath(char * path, Movie &movie, FSSpec& theFSSpec, short& movieResFile, short& movieResID);
+bool 	createMovieFromPath(char * path, Movie &movie, FSSpec& theFSSpec, short& movieResFile, short& movieResID){
 
-	#endif
+	OSErr 		result 			= 0;
 
-	#ifdef TARGET_OSX
-		FSRef 		fsref;
-		result = FSPathMakeRef((const UInt8*)path, &fsref, &isdir);
-		if (result) {
-			ofLog(OF_LOG_ERROR,"FSPathMakeRef failed %d", result);
-			ofLog(OF_LOG_ERROR,"Error loading movie");
-			return false;
-		}
-		result = FSGetCatalogInfo(&fsref, kFSCatInfoNone, NULL, NULL, &theFSSpec, NULL);
-		if (result) {
-			ofLog(OF_LOG_ERROR,"FSGetCatalogInfo failed %d", result);
-			ofLog(OF_LOG_ERROR,"Error loading movie");
-			return false;
-		}
-	#endif
-
-	short movieResFile;
+    createFSSpecFromPath(path, theFSSpec);
+	
 	result = OpenMovieFile (&theFSSpec, &movieResFile, fsRdPerm);
 	if (result == noErr) {
 
-		short   movieResID = 0;
+		
 		result = NewMovieFromFile(&movie, movieResFile, &movieResID, (unsigned char *) 0, newMovieActive, (Boolean *) 0);
-		if (result == noErr){
+        if (result == noErr){
 			CloseMovieFile (movieResFile);
 		} else {
 			ofLog(OF_LOG_ERROR,"NewMovieFromFile failed %d", result);
@@ -374,7 +376,7 @@ bool ofQuickTimePlayer::loadMovie(string name){
 			if(! createMovieFromURL(name, moviePtr) ) return false;
 		}else{
 			name 					= ofToDataPath(name);
-			if( !createMovieFromPath((char *)name.c_str(), moviePtr) ) return false;
+			if( !createMovieFromPath((char *)name.c_str(), moviePtr, movieFSSpec, movieResFile, movieResID) ) return false;
 		}
 
 		bool bDoWeAlreadyHaveAGworld = false;
@@ -1042,148 +1044,234 @@ bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
-vector< vector<float> > ofQuickTimePlayer::extractAudio(int trackIndex){
-    
-    vector< vector<float> > audio;
+bool ofQuickTimePlayer::replaceAudioWithFile(string path){
     
     OSStatus err = noErr;
     
-    MovieAudioExtractionRef extractionSessionRef = nil;
-    AudioStreamBasicDescription asbd;
-    AudioBufferList * bufferList;
+    Track track = GetMovieIndTrackType(moviePtr, 1, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
     
-    err = MovieAudioExtractionBegin(moviePtr, 0, &extractionSessionRef);
+    if(track == NULL){
+        ofLogVerbose() << "No audio track to delete";
+    }else{
+        ofLogVerbose() << "Deleting current audio track";
+        Media oldAudioMedia = GetTrackMedia(track);
+        DisposeMovieTrack(track);
+    }
     
-//    AudioStreamBasicDescription audioFormat;
-//    memset(&audioFormat, 0, sizeof(audioFormat));
-//    audioFormat.mSampleRate = 48000;
-//    audioFormat.mFormatID = kAudioFormatLinearPCM;
-//    audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | 
-//    kAudioFormatFlagIsPacked | 
-//    kAppleLosslessFormatFlag_16BitSourceData | 
-//    kAudioFormatFlagIsNonInterleaved;
-//    audioFormat.mBytesPerPacket = 4;
-//    audioFormat.mFramesPerPacket = 1;
-//    audioFormat.mChannelsPerFrame = 1;
-//    audioFormat.mBytesPerFrame = 4;
-//    audioFormat.mBitsPerChannel = 16;
+    Movie audioMoviePtr;
+    FSSpec audioFileSpec;
+    short audioMovieResFile, audioMovieResID;
+
+    if(createMovieFromPath((char *)path.c_str(), audioMoviePtr, audioFileSpec, audioMovieResFile, audioMovieResID)){
+        ofLogVerbose() << "Replacing audio with media from: " << path;
+        
+        // reset timescale - paranoia
+        SetMovieTimeScale(audioMoviePtr, GetMovieTimeScale(moviePtr));
+        
+        // get track and media refs
+        Track audioMovieTrack = GetMovieTrack(audioMoviePtr, 1);
+        Media audioMovieMedia = GetTrackMedia(audioMovieTrack);
+        
+        // begin edits
+        BeginMediaEdits(audioMovieMedia);
+        
+        // add an empty track
+        err = AddEmptyTrackToMovie (audioMovieTrack, moviePtr, nil, nil, &track);
+        
+        // insert the media into the track
+        err = InsertTrackSegment(audioMovieTrack, track, 0, GetMovieDuration(moviePtr), 0);
+        
+        // end edits
+        EndMediaEdits(audioMovieMedia);
+        
+        // save quicktime movie - thanks to: http://www.mactech.com/articles/mactech/Vol.20/20.05/ModernTimes/index.html
+        Handle dataRef = NULL;
+        unsigned long dataRefType = 0;
+        DataHandler handler = NULL;
+        err = QTNewDataReferenceFromFSSpec(&movieFSSpec, 0, &dataRef, &dataRefType);
+        err = OpenMovieStorage(dataRef, dataRefType, kDataHCanRead + kDataHCanWrite, &handler);
+        err = UpdateMovieInStorage(moviePtr, handler);
+        
+        string previousPath = filePath;
+        string tempFile = filePath + ".temp";
+        
+        ofLogVerbose() << "Creating temp file: " << tempFile << endl;
+        
+        FILE * pFile;
+		pFile = fopen (tempFile.c_str(),"w");
+		fclose (pFile);
+
+        FSSpec   tempFSSpec;
+        createFSSpecFromPath((char*)tempFile.c_str(), tempFSSpec);
+                
+        // Flatten into a single fork.
+        FlattenMovie (moviePtr, flattenAddMovieToDataFork, &tempFSSpec, 'TVOD', -1, createMovieFileDeleteCurFile, nil, NULL);
+        
+        // Check for error.
+        err = GetMoviesError ();
+        if (err == noErr) {
+            ofLogNotice() << "Created new file: " << tempFile;
+            close();
+            ofFile f = ofFile(tempFile);
+            f.renameTo(previousPath, true, true);
+            return true;
+        }else{
+            ofLogError() << "Could NOT create new file: " << err << " " << filePath;
+            ofFile f = ofFile(tempFile);
+            f.remove();
+            return false;
+        }
+   
+    }else{
+        
+        ofLogError() << "Could NOT load audio to replace media from: " << path;
+        
+        return false;
+        
+    }
+}
+
+//---------------------------------------------------------------------------
+//vector< vector<float> > ofQuickTimePlayer::extractAudio(int trackIndex){
+//
+//    vector< vector<float> > audio;
+//
+//    MovieAudioExtractionRef extractionSessionRef = nil;
+//    AudioStreamBasicDescription asbd;
+//    AudioBufferList * bufferList;
 //    
-//    err = MovieAudioExtractionSetProperty(extractionSessionRef,
+//    err = MovieAudioExtractionBegin(moviePtr, 0, &extractionSessionRef);
+//    
+////    AudioStreamBasicDescription audioFormat;
+////    memset(&audioFormat, 0, sizeof(audioFormat));
+////    audioFormat.mSampleRate = 48000;
+////    audioFormat.mFormatID = kAudioFormatLinearPCM;
+////    audioFormat.mFormatFlags = kAudioFormatFlagIsSignedInteger | 
+////    kAudioFormatFlagIsPacked | 
+////    kAppleLosslessFormatFlag_16BitSourceData | 
+////    kAudioFormatFlagIsNonInterleaved;
+////    audioFormat.mBytesPerPacket = 4;
+////    audioFormat.mFramesPerPacket = 1;
+////    audioFormat.mChannelsPerFrame = 1;
+////    audioFormat.mBytesPerFrame = 4;
+////    audioFormat.mBitsPerChannel = 16;
+////    
+////    err = MovieAudioExtractionSetProperty(extractionSessionRef,
+////                                          kQTPropertyClass_MovieAudioExtraction_Audio,
+////                                          kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
+////                                          sizeof (audioFormat), &audioFormat);
+//    
+//    err = MovieAudioExtractionGetProperty(extractionSessionRef,
 //                                          kQTPropertyClass_MovieAudioExtraction_Audio,
 //                                          kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
-//                                          sizeof (audioFormat), &audioFormat);
-    
-    err = MovieAudioExtractionGetProperty(extractionSessionRef,
-                                          kQTPropertyClass_MovieAudioExtraction_Audio,
-                                          kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
-                                          sizeof (asbd), &asbd, nil);
-    
-    if (err){
-        ofLogError() << "MovieAudioExtractionGetProperty Error: " << err;
-    }
-    
-    bufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList) + asbd.mChannelsPerFrame*sizeof(AudioBuffer));
-    bufferList->mNumberBuffers = asbd.mChannelsPerFrame;
-    
-    ofLogNotice()   << " format: " << asbd.mFormatID 
-                    << " samplerate: " << asbd.mSampleRate
-                    << " flags: " << asbd.mFormatFlags
-                    << " channels: " << asbd.mChannelsPerFrame
-                    << " frames: " << asbd.mFramesPerPacket
-                    << " bits: " << asbd.mBitsPerChannel
-                    << " bytes/frame: " << asbd.mBytesPerFrame
-                    << " bytes/pack: " << asbd.mBytesPerPacket;
-    
-    
-    if((asbd.mFormatFlags & kAudioFormatFlagIsFloat) == kAudioFormatFlagIsFloat){
-        cout << "kAudioFormatFlagIsFloat" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsBigEndian) == kAudioFormatFlagIsBigEndian){
-        cout << "kAudioFormatFlagIsBigEndian" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsSignedInteger) == kAudioFormatFlagIsSignedInteger){
-        cout << "kAudioFormatFlagIsSignedInteger" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsPacked) == kAudioFormatFlagIsPacked){
-        cout << "kAudioFormatFlagIsPacked" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsAlignedHigh) == kAudioFormatFlagIsAlignedHigh){
-        cout << "kAudioFormatFlagIsAlignedHigh" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) == kAudioFormatFlagIsNonInterleaved){
-        cout << "kAudioFormatFlagIsNonInterleaved" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagIsNonMixable) == kAudioFormatFlagIsNonMixable){
-        cout << "kAudioFormatFlagIsNonMixable" << endl;
-    }
-    if((asbd.mFormatFlags & kAudioFormatFlagsAreAllClear) == kAudioFormatFlagsAreAllClear){
-        cout << "kAudioFormatFlagsAreAllClear" << endl;
-    }
-    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_16BitSourceData) == kAppleLosslessFormatFlag_16BitSourceData){
-        cout << "kAppleLosslessFormatFlag_16BitSourceData" << endl;
-    }
-    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_20BitSourceData) == kAppleLosslessFormatFlag_20BitSourceData){
-        cout << "kAppleLosslessFormatFlag_20BitSourceData" << endl;
-    }
-    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_24BitSourceData) == kAppleLosslessFormatFlag_24BitSourceData){
-        cout << "kAppleLosslessFormatFlag_24BitSourceData" << endl;
-    }
-    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_32BitSourceData) == kAppleLosslessFormatFlag_32BitSourceData){
-        cout << "kAppleLosslessFormatFlag_32BitSourceData" << endl;
-    }
-    
-    int estimatedFrameCount = getTotalNumFrames();
-    
-    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
-        AudioBuffer audioBuffer = bufferList->mBuffers[i];
-        audioBuffer.mNumberChannels = asbd.mChannelsPerFrame;
-        audioBuffer.mDataByteSize = estimatedFrameCount*asbd.mBytesPerFrame;
-        audioBuffer.mData = calloc(1, estimatedFrameCount*asbd.mBytesPerFrame);
-        bufferList->mBuffers[i] = audioBuffer;
-    }
-    
-    UInt32 numFrames = 512;
-    UInt32 flags;
-    UInt32 actualFrameCount = 0;
-    
-    while (true){
-        err = MovieAudioExtractionFillBuffer(extractionSessionRef, &numFrames, bufferList, &flags);
-        if (err){
-            ofLogError() << "MovieAudioExtractionFillBuffer Error: " << err;
-        }
-        actualFrameCount += 1;
-        
-        if (flags & kQTMovieAudioExtractionComplete){
-            ofLogNotice() << "end of movie";
-            break;
-        }
-    }
-    
-    ofLogNotice() << "Extracted: " << actualFrameCount << " actual frames vs " << estimatedFrameCount*asbd.mBytesPerFrame << " estimated frames";
-    
-    audio.resize(asbd.mChannelsPerFrame);
-    
-    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
-        vector<float> channel;
-        channel.resize(actualFrameCount);
-        ofLogNotice() << "channel: " << i;
-        Float32 *frames = (Float32 *)bufferList->mBuffers[i].mData;
-        for (int j = 0; j < actualFrameCount; j ++){
-            channel[j] = frames[j];
-        }
-        audio[i] = channel;
-    }
-    
-    err = MovieAudioExtractionEnd(extractionSessionRef);
-    if (err){
-        ofLogError() << "MovieAudioExtractionEnd Error: " << err;
-        
-    }
-    
-    free(bufferList);
-    
-    return audio;
-}
+//                                          sizeof (asbd), &asbd, nil);
+//    
+//    if (err){
+//        ofLogError() << "MovieAudioExtractionGetProperty Error: " << err;
+//    }
+//    
+//    bufferList = (AudioBufferList *)calloc(1, sizeof(AudioBufferList) + asbd.mChannelsPerFrame*sizeof(AudioBuffer));
+//    bufferList->mNumberBuffers = asbd.mChannelsPerFrame;
+//    
+//    ofLogNotice()   << " format: " << asbd.mFormatID 
+//                    << " samplerate: " << asbd.mSampleRate
+//                    << " flags: " << asbd.mFormatFlags
+//                    << " channels: " << asbd.mChannelsPerFrame
+//                    << " frames: " << asbd.mFramesPerPacket
+//                    << " bits: " << asbd.mBitsPerChannel
+//                    << " bytes/frame: " << asbd.mBytesPerFrame
+//                    << " bytes/pack: " << asbd.mBytesPerPacket;
+//    
+//    
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsFloat) == kAudioFormatFlagIsFloat){
+//        cout << "kAudioFormatFlagIsFloat" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsBigEndian) == kAudioFormatFlagIsBigEndian){
+//        cout << "kAudioFormatFlagIsBigEndian" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsSignedInteger) == kAudioFormatFlagIsSignedInteger){
+//        cout << "kAudioFormatFlagIsSignedInteger" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsPacked) == kAudioFormatFlagIsPacked){
+//        cout << "kAudioFormatFlagIsPacked" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsAlignedHigh) == kAudioFormatFlagIsAlignedHigh){
+//        cout << "kAudioFormatFlagIsAlignedHigh" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsNonInterleaved) == kAudioFormatFlagIsNonInterleaved){
+//        cout << "kAudioFormatFlagIsNonInterleaved" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagIsNonMixable) == kAudioFormatFlagIsNonMixable){
+//        cout << "kAudioFormatFlagIsNonMixable" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAudioFormatFlagsAreAllClear) == kAudioFormatFlagsAreAllClear){
+//        cout << "kAudioFormatFlagsAreAllClear" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_16BitSourceData) == kAppleLosslessFormatFlag_16BitSourceData){
+//        cout << "kAppleLosslessFormatFlag_16BitSourceData" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_20BitSourceData) == kAppleLosslessFormatFlag_20BitSourceData){
+//        cout << "kAppleLosslessFormatFlag_20BitSourceData" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_24BitSourceData) == kAppleLosslessFormatFlag_24BitSourceData){
+//        cout << "kAppleLosslessFormatFlag_24BitSourceData" << endl;
+//    }
+//    if((asbd.mFormatFlags & kAppleLosslessFormatFlag_32BitSourceData) == kAppleLosslessFormatFlag_32BitSourceData){
+//        cout << "kAppleLosslessFormatFlag_32BitSourceData" << endl;
+//    }
+//    
+//    int estimatedFrameCount = getTotalNumFrames();
+//    
+//    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
+//        AudioBuffer audioBuffer = bufferList->mBuffers[i];
+//        audioBuffer.mNumberChannels = asbd.mChannelsPerFrame;
+//        audioBuffer.mDataByteSize = estimatedFrameCount*asbd.mBytesPerFrame;
+//        audioBuffer.mData = calloc(1, estimatedFrameCount*asbd.mBytesPerFrame);
+//        bufferList->mBuffers[i] = audioBuffer;
+//    }
+//    
+//    UInt32 numFrames = 512;
+//    UInt32 flags;
+//    UInt32 actualFrameCount = 0;
+//    
+//    while (true){
+//        err = MovieAudioExtractionFillBuffer(extractionSessionRef, &numFrames, bufferList, &flags);
+//        if (err){
+//            ofLogError() << "MovieAudioExtractionFillBuffer Error: " << err;
+//        }
+//        actualFrameCount += 1;
+//        
+//        if (flags & kQTMovieAudioExtractionComplete){
+//            ofLogNotice() << "end of movie";
+//            break;
+//        }
+//    }
+//    
+//    ofLogNotice() << "Extracted: " << actualFrameCount << " actual frames vs " << estimatedFrameCount*asbd.mBytesPerFrame << " estimated frames";
+//    
+//    audio.resize(asbd.mChannelsPerFrame);
+//    
+//    for (int i = 0; i < asbd.mChannelsPerFrame; i ++){
+//        vector<float> channel;
+//        channel.resize(actualFrameCount);
+//        ofLogNotice() << "channel: " << i;
+//        Float32 *frames = (Float32 *)bufferList->mBuffers[i].mData;
+//        for (int j = 0; j < actualFrameCount; j ++){
+//            channel[j] = frames[j];
+//        }
+//        audio[i] = channel;
+//    }
+//    
+//    err = MovieAudioExtractionEnd(extractionSessionRef);
+//    if (err){
+//        ofLogError() << "MovieAudioExtractionEnd Error: " << err;
+//        
+//    }
+//    
+//    free(bufferList);
+//    
+//    return audio;
+//}
 
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::createAudioContext(qtAudioDevice qtDevice){

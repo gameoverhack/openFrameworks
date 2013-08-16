@@ -75,8 +75,9 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         bool            setAudioDevice(string deviceName);
     
         bool            setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
-
-        vector< vector<float> > extractAudio(int trackIndex);
+        bool            replaceAudioWithFile(string path);
+    
+//        vector< vector<float> > extractAudio(int trackIndex);
 
         float 		    getVolume();
         float 		    getPan();
@@ -90,6 +91,9 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
 	protected:
 		
+        FSSpec 	movieFSSpec;
+        short   movieResFile, movieResID;
+    
         void    createImgMemAndGWorld();
     
         bool    createAudioContext(qtAudioDevice qtDevice);

@@ -71,9 +71,14 @@ bool ofVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, 
 }
 
 //---------------------------------------------------------------------------
-vector< vector<float> >  ofVideoPlayer::extractAudio(int trackIndex){
-    return player->extractAudio(trackIndex);
+bool ofVideoPlayer::replaceAudioWithFile(string path){
+    return player->replaceAudioWithFile(path);
 }
+
+//---------------------------------------------------------------------------
+//vector< vector<float> >  ofVideoPlayer::extractAudio(int trackIndex){
+//    return player->extractAudio(trackIndex);
+//}
 
 //---------------------------------------------------------------------------
 ofPixelFormat ofVideoPlayer::getPixelFormat(){
