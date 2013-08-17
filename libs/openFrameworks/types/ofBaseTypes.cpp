@@ -101,7 +101,7 @@ bool ofBaseVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
-bool  ofBaseVideoPlayer::replaceAudioWithFile(string path){
+bool  ofBaseVideoPlayer::replaceAudioWithFile(string path, bool bMakeSelfContained, string copyToPath){
     ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::replaceAudioWithFile not implemented");
     return false;
 }

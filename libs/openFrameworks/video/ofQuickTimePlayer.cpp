@@ -924,17 +924,94 @@ vector<string> ofQuickTimePlayer::getAudioDevices(){
 }
 
 //---------------------------------------------------------------------------
+static string getTrackMediaTypeAsString(OSType trackType){
+    switch (trackType) {
+        case VideoMediaType:
+            return "VideoMediaType";
+            break;
+        case SoundMediaType:
+            return "SoundMediaType";
+            break;
+        case TextMediaType:
+            return "TextMediaType";
+            break;
+        case BaseMediaType:
+            return "BaseMediaType";
+            break;
+        case MPEGMediaType:
+            return "MPEGMediaType";
+            break;
+        case MusicMediaType:
+            return "MusicMediaType";
+            break;
+        case TimeCodeMediaType:
+            return "TimeCodeMediaType";
+            break;
+        case SpriteMediaType:
+            return "SpriteMediaType";
+            break;
+        case FlashMediaType:
+            return "FlashMediaType";
+            break;
+        case MovieMediaType:
+            return "MovieMediaType";
+            break;
+        case TweenMediaType:
+            return "TweenMediaType";
+            break;
+        case ThreeDeeMediaType:
+            return "ThreeDeeMediaType";
+            break;
+        case SkinMediaType:
+            return "SkinMediaType";
+            break;
+        case HandleDataHandlerSubType:
+            return "HandleDataHandlerSubType";
+            break;
+        case PointerDataHandlerSubType:
+            return "PointerDataHandlerSubType";
+            break;
+        case NullDataHandlerSubType:
+            return "NullDataHandlerSubType";
+            break;
+        case ResourceDataHandlerSubType:
+            return "ResourceDataHandlerSubType";
+            break;
+        case URLDataHandlerSubType:
+            return "URLDataHandlerSubType";
+            break;
+        case AliasDataHandlerSubType:
+            return "AliasDataHandlerSubType";
+            break;
+        case WiredActionHandlerType:
+            return "WiredActionHandlerType";
+            break;
+        case kQTQuartzComposerMediaType:
+            return "kQTQuartzComposerMediaType";
+            break;
+        case TimeCode64MediaType:
+            return "TimeCode64MediaType";
+            break;
+    }
+}
+
+//---------------------------------------------------------------------------
 int ofQuickTimePlayer::getAudioTrackList(){
     
-    AudioChannelLayout *layout;
+    AudioChannelLayout *layout = NULL;
     int trackIndex;
-    
-    for(trackIndex = 0; trackIndex < GetMovieTrackCount(moviePtr); trackIndex++){
+//    cout << "track count " << GetMovieTrackCount(moviePtr) << endl;
+    for(trackIndex = 1; trackIndex <= GetMovieTrackCount(moviePtr); trackIndex++){
         UInt32 size = 0;
         
         Track track = GetMovieIndTrackType(moviePtr, trackIndex, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
+    
+        OSType trackType;
+        GetMediaHandlerDescription(GetTrackMedia(track), &trackType, nil, nil);
         
         if(track == nil) continue;
+        
+        ofLogNotice() << "trackindex: " << trackIndex << " " << getTrackMediaTypeAsString(trackType) << endl;
         
         QTGetTrackPropertyInfo(track, kQTPropertyClass_Audio, kQTAudioPropertyID_ChannelLayout, nil, &size, nil);
         
@@ -948,7 +1025,9 @@ int ofQuickTimePlayer::getAudioTrackList(){
         break;
     }
     
-    free(layout);
+    if(layout != NULL) free(layout);
+    
+    if(trackIndex == GetMovieTrackCount(moviePtr)) trackIndex = -1;
     
     // so this actually returns the first audio track
     // which is a bit dodgy, but will work for now
@@ -1034,6 +1113,7 @@ bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
     free(layout);
     
     if(ok){
+        ofLogVerbose() << "Audio channel " << oldChannelLabel << " remapped to " << newChannelLabel;
         MoviesTask(moviePtr, 0);
         return true;
     }else{
@@ -1044,21 +1124,33 @@ bool ofQuickTimePlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLab
 }
 
 //---------------------------------------------------------------------------
-bool ofQuickTimePlayer::replaceAudioWithFile(string path){
+bool ofQuickTimePlayer::replaceAudioWithFile(string path, bool bMakeSelfContained, string copyToPath){
     
     OSStatus err = noErr;
+    TimeScale duration;
     
-    Track track = GetMovieIndTrackType(moviePtr, 1, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
+    int trackIndex = getAudioTrackList();
     
-    if(track == NULL){
-        ofLogVerbose() << "No audio track to delete";
+    if(trackIndex != -1){
+        ofLogWarning() << "Attempt to delete track: " << trackIndex << endl;
+        
+        Track track = GetMovieIndTrackType(moviePtr, trackIndex, SoundMediaType, movieTrackMediaType | movieTrackEnabledOnly);
+        
+        if(track == NULL){
+            ofLogVerbose() << "No audio track to delete " << trackIndex;
+            duration = GetMovieDuration(moviePtr);
+        }else{
+            ofLogVerbose() << "Deleting current audio track " << trackIndex;
+            Media oldAudioMedia = GetTrackMedia(track);
+            duration = GetMediaDuration(oldAudioMedia);
+            DisposeMovieTrack(track);
+        }
     }else{
-        ofLogVerbose() << "Deleting current audio track";
-        Media oldAudioMedia = GetTrackMedia(track);
-        DisposeMovieTrack(track);
+        ofLogWarning() << "No audio track to delete!" << endl;
     }
-    
+
     Movie audioMoviePtr;
+    Track audioNewTrack;;
     FSSpec audioFileSpec;
     short audioMovieResFile, audioMovieResID;
 
@@ -1076,52 +1168,90 @@ bool ofQuickTimePlayer::replaceAudioWithFile(string path){
         BeginMediaEdits(audioMovieMedia);
         
         // add an empty track
-        err = AddEmptyTrackToMovie (audioMovieTrack, moviePtr, nil, nil, &track);
-        
+        err = AddEmptyTrackToMovie (audioMovieTrack, moviePtr, nil, nil, &audioNewTrack);
+
         // insert the media into the track
-        err = InsertTrackSegment(audioMovieTrack, track, 0, GetMovieDuration(moviePtr), 0);
+        err = InsertTrackSegment(audioMovieTrack, audioNewTrack, 0, GetMovieDuration(moviePtr), 0);
         
         // end edits
         EndMediaEdits(audioMovieMedia);
         
-        // save quicktime movie - thanks to: http://www.mactech.com/articles/mactech/Vol.20/20.05/ModernTimes/index.html
-        Handle dataRef = NULL;
-        unsigned long dataRefType = 0;
-        DataHandler handler = NULL;
-        err = QTNewDataReferenceFromFSSpec(&movieFSSpec, 0, &dataRef, &dataRefType);
-        err = OpenMovieStorage(dataRef, dataRefType, kDataHCanRead + kDataHCanWrite, &handler);
-        err = UpdateMovieInStorage(moviePtr, handler);
-        
-        string previousPath = filePath;
-        string tempFile = filePath + ".temp";
-        
-        ofLogVerbose() << "Creating temp file: " << tempFile << endl;
-        
-        FILE * pFile;
-		pFile = fopen (tempFile.c_str(),"w");
-		fclose (pFile);
-
-        FSSpec   tempFSSpec;
-        createFSSpecFromPath((char*)tempFile.c_str(), tempFSSpec);
-                
-        // Flatten into a single fork.
-        FlattenMovie (moviePtr, flattenAddMovieToDataFork, &tempFSSpec, 'TVOD', -1, createMovieFileDeleteCurFile, nil, NULL);
-        
-        // Check for error.
-        err = GetMoviesError ();
-        if (err == noErr) {
-            ofLogNotice() << "Created new file: " << tempFile;
+        if(!bMakeSelfContained){
+            // save quicktime movie - thanks to: http://www.mactech.com/articles/mactech/Vol.20/20.05/ModernTimes/index.html
+            Handle dataRef = NULL;
+            unsigned long dataRefType = 0;
+            DataHandler handler = NULL;
+            err = QTNewDataReferenceFromFSSpec(&movieFSSpec, 0, &dataRef, &dataRefType);
+            err = OpenMovieStorage(dataRef, dataRefType, kDataHCanRead + kDataHCanWrite, &handler);
+            err = UpdateMovieInStorage(moviePtr, handler);
+            CloseMovieFile(movieResFile);
             close();
-            ofFile f = ofFile(tempFile);
-            f.renameTo(previousPath, true, true);
+
             return true;
+            
         }else{
-            ofLogError() << "Could NOT create new file: " << err << " " << filePath;
-            ofFile f = ofFile(tempFile);
-            f.remove();
-            return false;
+            bool replace = (copyToPath == "");
+            string previousPath = filePath;
+            string tempFile;
+            
+            if(replace){
+                tempFile = filePath + ".temp";
+            }else{
+                tempFile = copyToPath;
+                
+            }
+            
+            ofLogVerbose() << "Creating temp file: " << tempFile << endl;
+            
+            FILE * pFile;
+            pFile = fopen (tempFile.c_str(),"w");
+            fclose (pFile);
+            
+            FSSpec   tempFSSpec;
+            createFSSpecFromPath((char*)tempFile.c_str(), tempFSSpec);
+            
+            Movie outputMovie;
+            Handle outDataRef = NULL;
+            unsigned long outDataRefType = 0;
+            DataHandler outDataHandler = NULL;
+            
+            CreateMovieStorage(outDataRef, outDataRefType, FOUR_CHAR_CODE('TVOD'), smSystemScript, createMovieFileDeleteCurFile | createMovieFileDontCreateResFile, &outDataHandler, &outputMovie);
+            SetMovieSelection(moviePtr, 0, duration);
+            outputMovie = CopyMovieSelection(moviePtr);
+            AddMovieToStorage(outputMovie, outDataHandler);
+            
+            CloseMovieFile(movieResFile);
+            close();
+            
+            FlattenMovieData(outputMovie, flattenAddMovieToDataFork, &tempFSSpec, FOUR_CHAR_CODE('TVOD'), smSystemScript,  createMovieFileDeleteCurFile | createMovieFileDontCreateMovie);
+            
+            err = QTNewDataReferenceFromFSSpec(&tempFSSpec, 0, &outDataRef, &outDataRefType);
+            err = OpenMovieStorage(outDataRef, outDataRefType, kDataHCanRead + kDataHCanWrite, &outDataHandler);
+            err = UpdateMovieInStorage(outputMovie, outDataHandler);
+
+            
+            // Check for error.
+            err = GetMoviesError ();
+            if (err == noErr) {
+                ofLogNotice() << "Created new file: " << tempFile;
+                if(replace){
+                    close();
+                    ofFile f = ofFile(tempFile);
+                    f.renameTo(previousPath, true, true);
+                }
+                return true;
+            }else{
+                ofLogError() << "Could NOT create new file: " << err << " " << tempFile;
+                ofFile f = ofFile(tempFile);
+                f.remove();
+                return false;
+            }
         }
-   
+        
+
+
+        
+        
     }else{
         
         ofLogError() << "Could NOT load audio to replace media from: " << path;

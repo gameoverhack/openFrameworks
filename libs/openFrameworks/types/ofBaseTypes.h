@@ -270,7 +270,7 @@ public:
     virtual bool                setAudioDevice(string deviceName);
     
     virtual bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
-    virtual bool                replaceAudioWithFile(string path);
+    virtual bool                replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
     
 //    virtual vector< vector<float> > extractAudio(int trackIndex);
     

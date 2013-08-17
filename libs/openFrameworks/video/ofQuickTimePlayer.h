@@ -75,7 +75,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         bool            setAudioDevice(string deviceName);
     
         bool            setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
-        bool            replaceAudioWithFile(string path);
+        bool            replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
     
 //        vector< vector<float> > extractAudio(int trackIndex);
 

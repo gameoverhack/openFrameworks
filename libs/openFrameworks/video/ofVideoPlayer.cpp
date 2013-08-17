@@ -71,8 +71,8 @@ bool ofVideoPlayer::setAudioTrackToChannel(int trackIndex, int oldChannelLabel, 
 }
 
 //---------------------------------------------------------------------------
-bool ofVideoPlayer::replaceAudioWithFile(string path){
-    return player->replaceAudioWithFile(path);
+bool ofVideoPlayer::replaceAudioWithFile(string path, bool bMakeSelfContained, string copyToPath){
+    return player->replaceAudioWithFile(path, bMakeSelfContained, copyToPath);
 }
 
 //---------------------------------------------------------------------------
