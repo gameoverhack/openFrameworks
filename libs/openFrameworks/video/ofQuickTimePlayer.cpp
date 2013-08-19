@@ -570,7 +570,7 @@ float ofQuickTimePlayer::getVolume(){
 	#ifdef OF_VIDEO_PLAYER_QUICKTIME
 	//--------------------------------------
 
-    volume = GetMovieVolume(moviePtr);
+    volume = GetMovieVolume(moviePtr)/256.0;
     return volume;
 
 	//--------------------------------------
