@@ -510,9 +510,9 @@ int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 
 int ofGetNumChannelsFromGLFormat(int glFormat){
 	switch(glFormat){
+    case GL_RGB_422_APPLE: // TODO: getting channels like this might not be right - can have alpha or not have alpha!!
 	case GL_RGB:
 		return 3;
-    case GL_RGB_422_APPLE:
     case GL_BGRA:
 	case GL_RGBA:
 		return 4;
