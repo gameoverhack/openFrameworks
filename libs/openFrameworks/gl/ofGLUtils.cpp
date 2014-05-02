@@ -113,7 +113,10 @@ string ofGetGlInternalFormatName(int glInternalFormat) {
 		case GL_RGB: return "GL_RGB";
 #ifndef TARGET_OPENGLES
 		case GL_RGB8: return "GL_RGB8";
+        case GL_ABGR_EXT: return "GL_ABGR_EXT";
 #endif
+        case GL_BGRA: return "GL_BGRA";
+        case GL_RGB_422_APPLE: return "GL_RGB_422_APPLE";
 		case GL_LUMINANCE: return "GL_LUMINANCE";
 #ifndef TARGET_OPENGLES
 		case GL_LUMINANCE8: return "GL_LUMINANCE8";
@@ -151,7 +154,14 @@ int ofGetGLFormatFromInternal(int glInternalFormat){
 	#endif
 				return GL_RGB;
 
-
+            case GL_BGRA:
+                return GL_BGRA;
+            
+    #if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        case GL_RGB_422_APPLE:
+            return GL_RGB_422_APPLE;
+    #endif
+            
 			case GL_LUMINANCE:
 	#ifndef TARGET_OPENGLES
 			case GL_LUMINANCE8:
@@ -219,6 +229,13 @@ int ofGetGlTypeFromInternal(int glInternalFormat){
 #endif
 			 return GL_UNSIGNED_BYTE;
 
+        case GL_BGRA:
+            return GL_UNSIGNED_INT_8_8_8_8_REV;
+            
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        case GL_RGB_422_APPLE:
+            return GL_UNSIGNED_SHORT_8_8_APPLE;
+#endif
 
 #ifndef TARGET_OPENGLES
 		case GL_RGB16:
@@ -432,6 +449,10 @@ ofPrimitiveMode ofGetOFPrimitiveMode(GLuint mode){
 
 int ofGetGLInternalFormatFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
+    case OF_PIXELS_2YUV: // TODO: define properly for windows!
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        return GL_RGB_422_APPLE;
+#endif
 	case OF_PIXELS_BGRA:
 		return GL_RGBA;
 	case OF_PIXELS_MONO:
@@ -458,6 +479,10 @@ int ofGetGLInternalFormatFromPixelFormat(ofPixelFormat pixelFormat){
 
 int ofGetGLTypeFromPixelFormat(ofPixelFormat pixelFormat){
 	switch(pixelFormat){
+    case OF_PIXELS_2YUV: // TODO: define properly for windows!
+#if defined (TARGET_OSX) && defined (GL_APPLE_rgb_422)
+        return GL_RGB_422_APPLE;
+#endif
 	case OF_PIXELS_BGRA:
 #ifdef TARGET_OPENGLES
     	return GL_BGRA_EXT;
@@ -487,6 +512,8 @@ int ofGetNumChannelsFromGLFormat(int glFormat){
 	switch(glFormat){
 	case GL_RGB:
 		return 3;
+    case GL_RGB_422_APPLE:
+    case GL_BGRA:
 	case GL_RGBA:
 		return 4;
 	case GL_LUMINANCE:

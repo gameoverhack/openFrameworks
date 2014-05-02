@@ -55,14 +55,14 @@ public:
 	virtual void draw(const ofPoint & point, float w, float h) {
 		draw(point.x, point.y, w, h);
 	}
-	
+
 	virtual float getHeight()=0;
 	virtual float getWidth()=0;
-	
+
 	virtual void setAnchorPercent(float xPct, float yPct){};
 	virtual void setAnchorPoint(float x, float y){};
 	virtual void resetAnchor(){};
-	
+
 };
 
 //----------------------------------------------------------
@@ -139,12 +139,12 @@ class ofBaseSoundInput{
 
 	public:
         virtual ~ofBaseSoundInput() {};
-    
+
 		virtual void audioIn( float * input, int bufferSize, int nChannels, int deviceID, long unsigned long tickCount ){
 			audioIn(input, bufferSize, nChannels);
 		}
 
-		virtual void audioIn( float * input, int bufferSize, int nChannels ){  
+		virtual void audioIn( float * input, int bufferSize, int nChannels ){
 			audioReceived(input, bufferSize, nChannels);
 		}
 
@@ -158,7 +158,7 @@ class ofBaseSoundOutput{
 
 	public:
         virtual ~ofBaseSoundOutput() {};
-    
+
 		virtual void audioOut( float * output, int bufferSize, int nChannels, int deviceID, long unsigned long tickCount  ){
 			audioOut(output, bufferSize, nChannels);
 		}
@@ -196,23 +196,24 @@ public:
 // ofBaseVideoGrabber
 //----------------------------------------------------------
 class ofBaseVideoGrabber: virtual public ofBaseVideo{
-	
+
 	public :
 	virtual ~ofBaseVideoGrabber();
 
 	//needs implementing
 	virtual vector<ofVideoDevice>	listDevices() = 0;
+
 	virtual bool	initGrabber(int w, int h) = 0;
 	virtual void	update() = 0;
 	virtual bool	isFrameNew() = 0;
-	
+
 	virtual unsigned char 	* getPixels() = 0;
-	
-	virtual void	close() = 0;	
-	
+
+	virtual void	close() = 0;
+
 	virtual float	getHeight() = 0;
 	virtual float	getWidth() = 0;
-	
+
 	virtual bool setPixelFormat(ofPixelFormat pixelFormat) = 0;
 	virtual ofPixelFormat getPixelFormat() = 0;
 
@@ -224,7 +225,7 @@ class ofBaseVideoGrabber: virtual public ofBaseVideo{
 	virtual void setDeviceID(int _deviceID);
 	virtual void setDesiredFrameRate(int framerate);
 	virtual void videoSettings();
-	
+
 };
 
 
@@ -232,49 +233,64 @@ class ofBaseVideoGrabber: virtual public ofBaseVideo{
 // ofBaseVideoPlayer
 //----------------------------------------------------------
 class ofBaseVideoPlayer: virtual public ofBaseVideo{
-	
+
 public:
 	virtual ~ofBaseVideoPlayer();
-	
+
 	//needs implementing
 	virtual bool				loadMovie(string name) = 0;
 	virtual void				close() = 0;
 	virtual void				update() = 0;
-	
+
 	virtual void				play() = 0;
-	virtual void				stop() = 0;		
-	
+	virtual void				stop() = 0;
+
 	virtual bool 				isFrameNew() = 0;
 	virtual unsigned char * 	getPixels() = 0;
 	virtual ofTexture *			getTexture(){return NULL;}; // if your videoplayer needs to implement seperate texture and pixel returns for performance, implement this function to return a texture instead of a pixel array. see iPhoneVideoGrabber for reference
-	
+
 	virtual float 				getWidth() = 0;
 	virtual float 				getHeight() = 0;
-	
+
 	virtual bool				isPaused() = 0;
 	virtual bool				isLoaded() = 0;
 	virtual bool				isPlaying() = 0;
-	
+
 	virtual bool				setPixelFormat(ofPixelFormat pixelFormat) = 0;
 	virtual ofPixelFormat 		getPixelFormat() = 0;
-		
+
 	//should implement!
 	virtual float 				getPosition();
 	virtual float 				getSpeed();
 	virtual float 				getDuration();
 	virtual bool				getIsMovieDone();
+
+    virtual vector<string>      getAudioDevices();
+    virtual int                 getAudioTrackList();
 	
 	virtual void 				setPaused(bool bPause);
 	virtual void 				setPosition(float pct);
 	virtual void 				setVolume(float volume); // 0..1
+	virtual void                setPan(float pan); // L -1.0...1.0 R
 	virtual void 				setLoopState(ofLoopType state);
 	virtual void   				setSpeed(float speed);
 	virtual void				setFrame(int frame);  // frame 0 = first frame...
-	
+
+    virtual bool                setAudioDevice(int ID);
+    virtual bool                setAudioDevice(string deviceName);
+    
+    virtual bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
+    virtual bool                replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
+    
+//    virtual vector< vector<float> > extractAudio(int trackIndex);
+    
+    virtual float 				getVolume();
+    virtual float 				getPan();
+
 	virtual int					getCurrentFrame();
 	virtual int					getTotalNumFrames();
 	virtual ofLoopType			getLoopState();
-	
+
 	virtual void				firstFrame();
 	virtual void				nextFrame();
 	virtual void				previousFrame();
@@ -342,7 +358,7 @@ public:
 	virtual void loadMatrix (const float *m){};
 	virtual void multMatrix (const ofMatrix4x4 & m){};
 	virtual void multMatrix (const float *m){};
-	
+
 	// screen coordinate things / default gl values
 	virtual void setupGraphicDefaults(){};
 	virtual void setupScreen(){};

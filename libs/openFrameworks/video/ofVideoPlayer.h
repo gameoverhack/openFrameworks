@@ -44,10 +44,10 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 	    string				getMoviePath();
 
 		bool				setPixelFormat(ofPixelFormat pixelFormat);
-		ofPixelFormat		getPixelFormat(); 
-		
+		ofPixelFormat		getPixelFormat();
+
 		void 				closeMovie();
-		void 				close();		
+		void 				close();
 
 		void				update();
 		void 				play();
@@ -60,14 +60,28 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		float 				getSpeed();
 		float 				getDuration();
 		bool				getIsMovieDone();
-
+    
+        vector<string>      getAudioDevices();
+        int                 getAudioTrackList();
+    
 		void 				setPosition(float pct);
 		void 				setVolume(float volume); // 0..1
+        float 				getVolume();
+		void                setPan(float pan); // L -1.0...1.0 R
+		float 				getPan();
 		void 				setLoopState(ofLoopType state);
 		ofLoopType			getLoopState();
 		void   				setSpeed(float speed);
 		void				setFrame(int frame);  // frame 0 = first frame...
-
+    
+        bool                setAudioDevice(int ID);
+        bool                setAudioDevice(string deviceName);
+    
+        bool                setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
+        bool                replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
+    
+//        vector< vector<float> > extractAudio(int trackIndex);
+    
 		void 				setUseTexture(bool bUse);
 		ofTexture &			getTextureReference();
 		void 				draw(float x, float y, float w, float h);
@@ -96,13 +110,13 @@ class ofVideoPlayer : public ofBaseVideoPlayer,public ofBaseVideoDraws{
 		bool				isLoaded();
 		bool				isPlaying();
 
-		//this is kept as legacy to support people accessing width and height directly. 
+		//this is kept as legacy to support people accessing width and height directly.
 		int					height;
 		int					width;
 
 	private:
 		ofPtr<ofBaseVideoPlayer>		player;
-		
+
 		ofTexture tex;
 		ofTexture * playerTex; // a seperate texture that may be optionally implemented by the player to avoid excessive pixel copying.
 		bool bUseTexture;
