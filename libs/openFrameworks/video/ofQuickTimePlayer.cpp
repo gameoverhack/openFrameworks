@@ -85,6 +85,7 @@ bool    createFSSpecFromPath(char * path, FSSpec& theFSSpec){
         return false;
     }
 #endif
+	return true;
 }
 
 bool  	createMovieFromPath(char * path, Movie &movie, FSSpec& theFSSpec, short& movieResFile, short& movieResID);
@@ -872,7 +873,7 @@ bool ofQuickTimePlayer::setPixelFormat(ofPixelFormat pixelFormat){
 ofPixelFormat ofQuickTimePlayer::getPixelFormat(){
 	return internalPixelFormat;
 }
-
+#ifdef TARGET_OSX
 //---------------------------------------------------------------------------
 vector<string> ofQuickTimePlayer::getAudioDevices(){
     
@@ -1631,7 +1632,7 @@ string ofQuickTimePlayer::getAudioChannelAsString(AudioChannelLabel label){
     
     return labelString;
 }
-
+#endif
 //---------------------------------------------------------------------------
 bool ofQuickTimePlayer::getIsMovieDone(){
 	if( !isLoaded() ){

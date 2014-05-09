@@ -3,10 +3,10 @@
 #include "ofConstants.h"
 #include "ofBaseTypes.h"
 #include "ofPixels.h"
-#include <map.h>
 
-#ifdef OF_VIDEO_PLAYER_QUICKTIME
-	#include "ofQtUtils.h"
+#ifdef TARGET_OSX
+
+#include <map.h>
 
 struct qtAudioDevice{
     string deviceName;
@@ -20,6 +20,11 @@ struct qtAudioDevice{
 
 static vector<string> qtAudioDeviceList;
 static map<string, qtAudioDevice> qtAudioDeviceMap;
+
+#endif
+
+#ifdef OF_VIDEO_PLAYER_QUICKTIME
+	#include "ofQtUtils.h"
 
 class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
@@ -59,10 +64,10 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         float			getSpeed();
         bool			getIsMovieDone();
         ofLoopType      getLoopState();
-    
+#ifdef TARGET_OSX
         vector<string> getAudioDevices();
         int            getAudioTrackList();
-
+#endif
         void 			setPosition(float pct);
         void 			setVolume(float volume);
         void            setPan(float pan); // L -1.0...1.0 R
@@ -73,12 +78,11 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 
         bool            setAudioDevice(int ID);
         bool            setAudioDevice(string deviceName);
-    
+#ifdef TARGET_OSX
         bool            setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
         bool            replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
-    
 //        vector< vector<float> > extractAudio(int trackIndex);
-
+#endif
         float 		    getVolume();
         float 		    getPan();
         int             getCurrentFrame();
@@ -95,10 +99,10 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         short   movieResFile, movieResID;
     
         void    createImgMemAndGWorld();
-    
+#ifdef TARGET_OSX
         bool    createAudioContext(qtAudioDevice qtDevice);
         string  getAudioChannelAsString(AudioChannelLabel label);
-
+#endif
 		void    start();
 
 		ofPixels		 	pixels;

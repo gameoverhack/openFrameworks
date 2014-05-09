@@ -255,6 +255,8 @@ void ofVideoPlayer::setVolume(float volume){
 float ofVideoPlayer::getVolume(){
 	if( player != NULL ){
 		return player->getVolume();
+	}else{
+		return 0.0f;
 	}
 }
 
@@ -269,6 +271,8 @@ void ofVideoPlayer::setPan(float pan){
 float ofVideoPlayer::getPan(){
 	if( player != NULL ){
         return player->getPan();
+	}else{
+		return 0.0f;
 	}
 }
 

@@ -44,10 +44,12 @@ typedef unsigned __int64   uint_least64_t;
  *  Not actually guaranteed to be fastest for all purposes
  *  Here we use the exact-width types for 8 and 16-bit ints. 
  */
+#if !defined(_MSC_VER)
 typedef char int_fast8_t;
-typedef unsigned char uint_fast8_t;
 typedef short  int_fast16_t;
 typedef unsigned short  uint_fast16_t;
+#endif
+typedef unsigned char uint_fast8_t;
 typedef int  int_fast32_t;
 typedef unsigned  int  uint_fast32_t;
 typedef __int64  int_fast64_t;

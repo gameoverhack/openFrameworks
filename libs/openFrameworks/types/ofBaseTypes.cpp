@@ -131,6 +131,7 @@ void ofBaseVideoPlayer::setVolume(float volume){
 //---------------------------------------------------------------------------
 float ofBaseVideoPlayer::getVolume(){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getVolume not implemented");
+	return 0.0f;
 }
 
 //---------------------------------------------------------------------------
@@ -141,6 +142,7 @@ void ofBaseVideoPlayer::setPan(float pan){
 //---------------------------------------------------------------------------
 float ofBaseVideoPlayer::getPan(){
 	ofLog(OF_LOG_WARNING, "ofBaseVideoPlayer::getPan not implemented");
+	return 0.0f;
 }
 
 //---------------------------------------------------------------------------
