@@ -7,6 +7,9 @@
 #include "ofConstants.h"
 #include "ofTypes.h"
 
+#ifndef LONG_MAX
+#include "limits.h"
+#endif // LONG_MAX
 
 /// \class ofThread
 /// \brief A threaded base class with a built in mutex for convenience.
@@ -76,11 +79,11 @@ public:
     /// \brief Check the running status of the thread.
     /// \returns true iff the thread is currently running.
     bool isThreadRunning() const;
-    
+
     /// \brief Get the unique thread id.
     /// \note This is NOT the the same as the operating thread id!
     int getThreadId() const;
-    
+
     /// \brief Get the unique thread name, in the form of "Thread id#"
     /// \returns the Thread ID string.
     std::string getThreadName() const;
@@ -110,13 +113,13 @@ public:
     ///
     /// \returns true iff the lock was successfully acquired.
     bool lock();
-    
+
     /// \brief Unlock the mutex.
     ///
     /// This will only unlocks the mutex if it was previously by the same
     /// calling thread.
     void unlock();
-    
+
     /// \brief Stop the thread.
     ///
     /// This does immediately stop the thread from processing, but
@@ -125,7 +128,7 @@ public:
     /// to both stop the thread AND wait for the thread to finish
     /// processing, the user should call waitForThread(true, ...).
     void stopThread();
-    
+
     /// \brief Wait for the thread to exit (aka "joining" the thread).
     ///
     /// This method waits for a thread will "block" and wait for the
@@ -161,7 +164,7 @@ public:
     /// \sa http://pocoproject.org/docs/Poco.Semaphore.html
     void waitForThread(bool callStopThread = true,
                        long milliseconds = INFINITE_JOIN_TIMEOUT);
-    
+
     /// \brief Tell the thread to sleep for a certain amount of milliseconds.
     ///
     /// This is useful inside the threadedFunction() when a thread is waiting
@@ -197,7 +200,7 @@ public:
     ///
     /// \param milliseconds The number of milliseconds to sleep.
     void sleep(long milliseconds);
-    
+
     /// \brief Tell the thread to give up its CPU time other threads.
     ///
     /// This method is similar to sleep() and can often be used in

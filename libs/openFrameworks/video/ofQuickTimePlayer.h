@@ -76,9 +76,9 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
         void			setFrame(int frame);  // frame 0 = first frame...
         void 			setPaused(bool bPause);
 
+#ifdef TARGET_OSX
         bool            setAudioDevice(int ID);
         bool            setAudioDevice(string deviceName);
-#ifdef TARGET_OSX
         bool            setAudioTrackToChannel(int trackIndex, int oldChannelLabel, int newChannelLabel);
         bool            replaceAudioWithFile(string path, bool bMakeSelfContained = false, string copyToPath = "");
 //        vector< vector<float> > extractAudio(int trackIndex);
