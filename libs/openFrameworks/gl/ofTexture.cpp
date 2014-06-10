@@ -320,8 +320,6 @@ void ofTexture::allocate(const ofTextureData & textureData, int glFormat, int pi
 	if( texData.textureTarget==GL_TEXTURE_RECTANGLE_ARB && ofGLSupportsNPOTTextures() ){
 		texData.tex_w = texData.width;
 		texData.tex_h = texData.height;
-		texData.tex_w = texData.width;
-		texData.tex_h = texData.height;
 	}else
 #endif
 	{
