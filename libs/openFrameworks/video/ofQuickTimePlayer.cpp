@@ -307,6 +307,11 @@ void ofQuickTimePlayer::createImgMemAndGWorld(){
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
             QTNewGWorldFromPtr (&(offscreenGWorld), k2vuyPixelFormat, &(movieRect), NULL, NULL, 0, (pixels.getPixels()), 4 * width);
 #else
+            // for some reason doesn't like non-even width's and height's
+            if(width % 2 != 0) width++;
+            if(height % 2 != 0) height++;
+            MacSetRect(&movieRect, 0, 0, width, height);
+            
             // this works perfectly on Mac platform!
             offscreenGWorldPixels = new unsigned char[2 * width * height + 32];
             pixels.allocate(width, height, OF_IMAGE_COLOR_ALPHA);
