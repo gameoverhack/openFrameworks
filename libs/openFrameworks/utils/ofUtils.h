@@ -111,6 +111,40 @@ string ofToString(const T& value, int precision, int width, char fill ){
 }
 
 template<class T>
+string ofToString(const vector<T>& values, int width) {
+    if(values.size() < width){
+        stringstream out;
+        int n = values.size();
+        out << "{";
+        if(n > 0) {
+            for(int i = 0; i < n - 1; i++) {
+                out << values[i] << ", ";
+            }
+            out << values[n - 1];
+        }
+        out << "}";
+        return out.str();
+    }else{
+        stringstream out;
+        int n = width;
+        out << "{";
+        if(n > 0) {
+            for(int i = 0; i < floor((n - 1) / 2.0); i++) {
+                out << values[i] << ", ";
+            }
+            out << values[floor((n - 1) / 2.0)];
+            out << "...";
+            for(int i = values.size() - floor((n - 1) / 2.0) - 1; i < values.size() - 1; i++) {
+                out << values[i] << ", ";
+            }
+            out << values[values.size() - 1];
+        }
+        out << "}";
+        return out.str();
+    }
+}
+
+template<class T>
 string ofToString(const vector<T>& values) {
 	stringstream out;
 	int n = values.size();
