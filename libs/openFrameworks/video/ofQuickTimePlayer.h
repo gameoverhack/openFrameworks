@@ -64,7 +64,7 @@ class ofQuickTimePlayer : public ofBaseVideoPlayer{
 		 
 		
 	protected:
-		void createImgMemAndGWorld();
+		virtual void createImgMemAndGWorld();
 		void start();
 
 		ofPixels		 	pixels;

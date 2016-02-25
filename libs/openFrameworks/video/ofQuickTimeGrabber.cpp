@@ -1,8 +1,11 @@
 #include "ofQuickTimeGrabber.h"
 #include "ofUtils.h"
 
+#if !defined(TARGET_LINUX) && defined(OF_VIDEO_CAPTURE_QUICKTIME)
 
-#if !defined(TARGET_LINUX) && !defined(MAC_OS_X_VERSION_10_7)
+#ifndef nullptr
+#define nullptr NULL
+#endif
 
 //---------------------------------
 #ifdef OF_VIDEO_CAPTURE_QUICKTIME

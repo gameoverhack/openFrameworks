@@ -2,7 +2,7 @@
 
 #include "ofConstants.h"
 
-#if !defined(TARGET_LINUX) && !defined(MAC_OS_X_VERSION_10_7)
+#if !defined(TARGET_LINUX) && defined(OF_VIDEO_CAPTURE_QUICKTIME)
 	#include "ofQtUtils.h"
 	#include "ofTexture.h"
 	#include "ofBaseTypes.h"
