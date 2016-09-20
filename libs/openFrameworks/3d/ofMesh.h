@@ -654,7 +654,7 @@ public:
 
 	/// \}
 
-private:
+protected:
 
 	vector<V> vertices;
 	vector<C> colors;
