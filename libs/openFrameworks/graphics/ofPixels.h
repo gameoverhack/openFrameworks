@@ -4,6 +4,7 @@
 #include "ofUtils.h"
 #include "ofColor.h"
 #include "ofMath.h"
+#include "ofLog.h"
 #include <limits>
 
 
@@ -333,6 +334,9 @@ public:
 	void setImageType(ofImageType imageType);
 
 	void setNumChannels(int numChannels);
+
+    static int pixelBitsFromPixelFormat(ofPixelFormat format);
+    static int bytesFromPixelFormat(int w, int h, ofPixelFormat format);
 
 	/// \}
 	/// \name Iterator

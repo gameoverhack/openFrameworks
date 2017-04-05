@@ -2,9 +2,10 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    particleSize = 30.0f;
+	ofSetVerticalSync(false);
+    particleSize = 2.0f;
     timeStep = 0.005f;
-    numParticles = 1000;
+    numParticles = 100000;
     
     // Width and Heigth of the windows
     width = ofGetWindowWidth();

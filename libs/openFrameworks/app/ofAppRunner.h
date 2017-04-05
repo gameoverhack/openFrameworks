@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofConstants.h"
-#include "ofPoint.h"
 #include "ofRectangle.h"
 #include "ofTypes.h"
 #include "ofWindowSettings.h"
@@ -47,9 +46,9 @@ void ofSetupOpenGL(Window * windowPtr, int w, int h, ofWindowMode screenMode){
 }
 
 
-int ofRunApp(shared_ptr<ofBaseApp> OFSA);
+int ofRunApp(shared_ptr<ofBaseApp> && OFSA);
 int ofRunApp(ofBaseApp * OFSA = nullptr); // will be deprecated
-void ofRunApp(shared_ptr<ofAppBaseWindow> window, shared_ptr<ofBaseApp> app);
+void ofRunApp(shared_ptr<ofAppBaseWindow> window, shared_ptr<ofBaseApp> && app);
 int ofRunMainLoop();
 
 
@@ -87,7 +86,7 @@ float ofRandomWidth();
 /// \returns a random number between 0 and the height of the window.
 float ofRandomHeight();
 bool		ofDoesHWOrientation();
-ofPoint		ofGetWindowSize();
+glm::vec2	ofGetWindowSize();
 ofRectangle	ofGetWindowRect();
 ofAppBaseWindow * ofGetWindowPtr();
 std::shared_ptr<ofAppBaseWindow> ofGetCurrentWindow();

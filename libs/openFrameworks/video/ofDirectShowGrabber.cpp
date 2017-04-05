@@ -91,7 +91,12 @@ bool ofDirectShowGrabber::setup(int w, int h){
 //---------------------------------------------------------------------------
 bool ofDirectShowGrabber::setPixelFormat(ofPixelFormat pixelFormat){
 	//note as we only support RGB we are just confirming that this pixel format is supported
+	if (pixelFormat == OF_PIXELS_YUY2) {
+		VI.setRequestedMediaSubType(VI_MEDIASUBTYPE_YUY2);
+		return true;
+	}
 	if( pixelFormat == OF_PIXELS_RGB ){
+		VI.setRequestedMediaSubType(VI_MEDIASUBTYPE_MJPG);
 		return true;
 	}
 	ofLogWarning("ofDirectShowGrabber") << "setPixelFormat(): requested pixel format not supported";

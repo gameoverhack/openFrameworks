@@ -2,8 +2,8 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
-    camWidth = 320;  // try to grab at this size.
-    camHeight = 240;
+    camWidth = 1280;  // try to grab at this size.
+	camHeight = 720;
 
     //get back a list of devices.
     vector<ofVideoDevice> devices = vidGrabber.listDevices();
@@ -18,8 +18,9 @@ void ofApp::setup(){
         }
     }
 
-    vidGrabber.setDeviceID(0);
+    vidGrabber.setDeviceID(1);
     vidGrabber.setDesiredFrameRate(60);
+	vidGrabber.setPixelFormat(OF_PIXELS_RGB);
     vidGrabber.initGrabber(camWidth, camHeight);
 
     videoInverted.allocate(camWidth, camHeight, OF_PIXELS_RGB);
@@ -33,22 +34,22 @@ void ofApp::update(){
     ofBackground(100, 100, 100);
     vidGrabber.update();
 
-    if(vidGrabber.isFrameNew()){
-        ofPixels & pixels = vidGrabber.getPixels();
-        for(int i = 0; i < pixels.size(); i++){
-            //invert the color of the pixel
-            videoInverted[i] = 255 - pixels[i];
-        }
-        //load the inverted pixels
-        videoTexture.loadData(videoInverted);
-    }
+    //if(vidGrabber.isFrameNew()){
+    //    ofPixels & pixels = vidGrabber.getPixels();
+    //    for(int i = 0; i < pixels.size(); i++){
+    //        //invert the color of the pixel
+    //        videoInverted[i] = 255 - pixels[i];
+    //    }
+    //    //load the inverted pixels
+    //    videoTexture.loadData(videoInverted);
+    //}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofSetHexColor(0xffffff);
     vidGrabber.draw(20, 20);
-    videoTexture.draw(20 + camWidth, 20, camWidth, camHeight);
+    //videoTexture.draw(20 + camWidth, 20, camWidth, camHeight);
 }
 
 
