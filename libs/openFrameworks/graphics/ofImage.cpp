@@ -316,11 +316,11 @@ bool ofLoadImage(ofTexture & tex, const ofBuffer & buffer){
 
 //----------------------------------------------------------------
 template<typename PixelType>
-static void saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualityType qualityLevel) {
+static bool saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualityType qualityLevel) {
 	ofInitFreeImage();
 	if (pix.isAllocated() == false){
 		ofLogError("ofImage") << "saveImage(): couldn't save \"" << fileName << "\", pixels are not allocated";
-		return;
+		return false;
 	}
 
 	#ifdef TARGET_LITTLE_ENDIAN
@@ -345,6 +345,7 @@ static void saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualit
 		// or guess via filename
 		fif = FreeImage_GetFIFFromFilename(fileName.c_str());
 	}
+	bool ok = false;
 	if((fif != FIF_UNKNOWN) && FreeImage_FIFSupportsReading(fif)) {
 		if(fif == FIF_JPEG) {
 			int quality = JPEG_QUALITYSUPERB;
@@ -355,7 +356,7 @@ static void saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualit
 				case OF_IMAGE_QUALITY_HIGH: quality = JPEG_QUALITYGOOD; break;
 				case OF_IMAGE_QUALITY_BEST: quality = JPEG_QUALITYSUPERB; break;
 			}
-			FreeImage_Save(fif, bmp, fileName.c_str(), quality);
+			ok = FreeImage_Save(fif, bmp, fileName.c_str(), quality);
 		} else {
 			if(qualityLevel != OF_IMAGE_QUALITY_BEST) {
 				ofLogWarning("ofImage") << "saveImage(): ofImageCompressionType only applies to JPEGs,"
@@ -371,12 +372,12 @@ static void saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualit
 					// this will create a 256-color palette from the image
 					convertedBmp = FreeImage_ColorQuantize(bmp, FIQ_NNQUANT);
 				}
-				FreeImage_Save(fif, convertedBmp, fileName.c_str());
+				ok = FreeImage_Save(fif, convertedBmp, fileName.c_str());
 				if (convertedBmp != nullptr){
 					FreeImage_Unload(convertedBmp);
 				}
 			} else {
-				FreeImage_Save(fif, bmp, fileName.c_str());
+				ok = FreeImage_Save(fif, bmp, fileName.c_str());
 			}
 		}
 	}
@@ -384,40 +385,40 @@ static void saveImage(ofPixels_<PixelType> & pix, string fileName, ofImageQualit
 	if (bmp != nullptr){
 		FreeImage_Unload(bmp);
 	}
+	return ok;
 }
 
 //----------------------------------------------------------------
-void ofSaveImage(ofPixels & pix, string fileName, ofImageQualityType qualityLevel){
-	saveImage(pix,fileName,qualityLevel);
+bool ofSaveImage(ofPixels & pix, string fileName, ofImageQualityType qualityLevel){
+	return saveImage(pix,fileName,qualityLevel);
 }
 
 //----------------------------------------------------------------
-void ofSaveImage(ofFloatPixels & pix, string fileName, ofImageQualityType qualityLevel) {
-	saveImage(pix,fileName,qualityLevel);
+bool ofSaveImage(ofFloatPixels & pix, string fileName, ofImageQualityType qualityLevel) {
+	return saveImage(pix,fileName,qualityLevel);
 }
 
 //----------------------------------------------------------------
-void ofSaveImage(ofShortPixels & pix, string fileName, ofImageQualityType qualityLevel) {
-	saveImage(pix,fileName,qualityLevel);
+bool ofSaveImage(ofShortPixels & pix, string fileName, ofImageQualityType qualityLevel) {
+	return saveImage(pix,fileName,qualityLevel);
 }
 
 //----------------------------------------------------------------
 template<typename PixelType>
-static void saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
+static bool saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
 	// thanks to alvaro casinelli for the implementation
 
 	ofInitFreeImage();
 
 	if (pix.isAllocated() == false){
 		ofLogError("ofImage","saveImage(): couldn't save to ofBuffer, pixels are not allocated");
-		return;
+		return false;
 	}
 
 	if(format==OF_IMAGE_FORMAT_JPEG && pix.getNumChannels()==4){
 		ofPixels pix3 = pix;
 		pix3.setNumChannels(3);
-		saveImage(pix3,buffer,format,qualityLevel);
-		return;
+		return saveImage(pix3, buffer, format, qualityLevel);;
 	}
 
 	#ifdef TARGET_LITTLE_ENDIAN
@@ -433,7 +434,7 @@ static void saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageForm
 		pix.swapRgb();
 	}
 	#endif
-
+	bool ok = false;
 	if (bmp)  // bitmap successfully created
 	{
 		   // (b) open a memory stream to compress the image onto mem_buffer:
@@ -450,9 +451,9 @@ static void saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageForm
 					case OF_IMAGE_QUALITY_HIGH: quality = JPEG_QUALITYGOOD; break;
 					case OF_IMAGE_QUALITY_BEST: quality = JPEG_QUALITYSUPERB; break;
 				}
-				FreeImage_SaveToMemory(FIF_JPEG, bmp, hmem, quality);
+				ok = FreeImage_SaveToMemory(FIF_JPEG, bmp, hmem, quality);
 		   }else{
-				FreeImage_SaveToMemory((FREE_IMAGE_FORMAT)format, bmp, hmem);
+				ok = FreeImage_SaveToMemory((FREE_IMAGE_FORMAT)format, bmp, hmem);
 		   }
 
 		   /*
@@ -472,9 +473,10 @@ static void saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageForm
 		   // note: FreeImage_AquireMemory allocates space for aux_mem_buffer):
 		   //
 		   unsigned char *mem_buffer = nullptr;
-		   if (!FreeImage_AcquireMemory(hmem, &mem_buffer, &size_in_bytes))
-				   ofLogError("ofImage") << "saveImage(): couldn't save to ofBuffer, aquiring compressed image from memory failed";
-
+		   if (!FreeImage_AcquireMemory(hmem, &mem_buffer, &size_in_bytes)) {
+			   ok = false;
+			   ofLogError("ofImage") << "saveImage(): couldn't save to ofBuffer, aquiring compressed image from memory failed";
+		   }
 		   /*
 			  Now, before closing the memory stream, copy the content of mem_buffer
 			  to an auxiliary buffer
@@ -488,19 +490,20 @@ static void saveImage(ofPixels_<PixelType> & pix, ofBuffer & buffer, ofImageForm
 		   // Close the memory stream (otherwise we may get a memory leak).
 		   FreeImage_CloseMemory(hmem);
 	}
+	return ok;
 }
 
 //----------------------------------------------------------------
-void ofSaveImage(ofPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
-	saveImage(pix,buffer,format,qualityLevel);
+bool ofSaveImage(ofPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
+	return saveImage(pix,buffer,format,qualityLevel);
 }
 
-void ofSaveImage(ofFloatPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
-	saveImage(pix,buffer,format,qualityLevel);
+bool ofSaveImage(ofFloatPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
+	return saveImage(pix,buffer,format,qualityLevel);
 }
 
-void ofSaveImage(ofShortPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
-	saveImage(pix,buffer,format,qualityLevel);
+bool  ofSaveImage(ofShortPixels & pix, ofBuffer & buffer, ofImageFormat format, ofImageQualityType qualityLevel) {
+	return saveImage(pix,buffer,format,qualityLevel);
 }
 
 
