@@ -144,16 +144,16 @@ bool ofLoadImage(ofTexture & tex, const std::string& path, const ofImageLoadSett
 bool ofLoadImage(ofTexture & tex, const ofBuffer & buffer, const ofImageLoadSettings &settings = ofImageLoadSettings::defaultSetting);
 
 /// \todo Needs documentation.
-void ofSaveImage(const ofPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
-void ofSaveImage(const ofPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
 
 /// \todo Needs documentation.
-void ofSaveImage(const ofFloatPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
-void ofSaveImage(const ofFloatPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofFloatPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofFloatPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
 
 /// \todo Needs documentation.
-void ofSaveImage(const ofShortPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
-void ofSaveImage(const ofShortPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofShortPixels & pix, const std::string& path, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
+bool ofSaveImage(const ofShortPixels & pix, ofBuffer & buffer, ofImageFormat format = OF_IMAGE_FORMAT_PNG, ofImageQualityType qualityLevel = OF_IMAGE_QUALITY_BEST);
 
 /// \brief Deallocates FreeImage resources.
 ///
